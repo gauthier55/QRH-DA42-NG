@@ -20,20 +20,16 @@
    red dashed frame for Emergency, orange for Abnormal, navy for data. Index ↔ page; two panes on wide screens. */
 :root{
   --desk:#e4e7eb; --paper:#ffffff; --ink:#111418; --dim:#59616c; --rule:#c4cad3;
-  --navy:#1f3f94; --red:#e1141c; --redfill:#ff5c5c; --orange:#f08c00; --orangefill:#ffc266;
+  --navy:#111418; --red:#e1141c; --redfill:#ff5c5c; --orange:#f08c00; --orangefill:#ffc266;
   --green:#178a3c; --hl:#fff1a6; --cyanfill:#cdf4fa; --greyfill:#e7e7e7; --magenta:#e51ce5; --pinkfill:#ff9fd0; --onfill:#111418;
   --font:Verdana,Geneva,"DejaVu Sans",Tahoma,sans-serif;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --desk:#070b12; --paper:#101722; --ink:#e7ebf1; --dim:#98a3b3; --rule:#2a3546;
-  --navy:#86a2ff; --red:#ff5a5a; --redfill:#a3262a; --orange:#ffa733; --orangefill:#8a5208;
-  --green:#4fd67f; --hl:#3a3410; --cyanfill:#123f48; --greyfill:#1b2331; --magenta:#f06cf0; --pinkfill:#5a2246; --onfill:#ffffff; color-scheme:dark}}
 :root[data-theme="dark"]{
   --desk:#070b12; --paper:#101722; --ink:#e7ebf1; --dim:#98a3b3; --rule:#2a3546;
-  --navy:#86a2ff; --red:#ff5a5a; --redfill:#a3262a; --orange:#ffa733; --orangefill:#8a5208;
+  --navy:#e7ebf1; --red:#ff5a5a; --redfill:#a3262a; --orange:#ffa733; --orangefill:#8a5208;
   --green:#4fd67f; --hl:#3a3410; --cyanfill:#123f48; --greyfill:#1b2331; --magenta:#f06cf0; --pinkfill:#5a2246; --onfill:#ffffff; color-scheme:dark}
-html,body{height:100%}
+html,body{min-height:100%}
 html{touch-action:manipulation}
 body{background:var(--desk);color:var(--ink);font-family:var(--font);font-size:16px;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 *{box-sizing:border-box}
@@ -42,24 +38,24 @@ button:focus-visible,input:focus-visible,[data-i]:focus-visible{outline:2px soli
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
 .gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--rule)}
+header{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--rule);padding-top:env(safe-area-inset-top,0px)}
+main{margin-top:calc(var(--hh,170px) - env(safe-area-inset-top,0px))}
 .bar{display:flex;align-items:center;gap:12px;padding-block:10px}
 .brand{font-weight:700;font-style:italic;font-size:18px;letter-spacing:.01em}
-.brand b{color:var(--navy);font-style:normal;margin-left:4px}
+.brand b{color:var(--red);font-style:normal;margin-left:4px}
 .ed{font-size:11px;color:var(--red);font-style:italic;margin-top:2px}
 .sp{flex:1}
 .ibtn{border:1px solid var(--rule);border-radius:6px;padding:8px 12px;font-size:12px;font-weight:700;color:var(--dim);min-height:40px;background:var(--paper)}
 .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding-bottom:10px}
 .tab{border:2px solid var(--tc);border-radius:6px;padding:10px 2px;font-weight:700;font-size:12.5px;color:var(--tc);min-height:46px;background:var(--paper)}
 .tab[aria-selected="true"]{background:var(--tc);color:#fff}
-.tab.N{--tc:var(--ink)}.tab.E{--tc:var(--red)}.tab.A{--tc:var(--orange)}.tab.L{--tc:var(--navy)}
+.tab.N{--tc:var(--ink)}.tab.E{--tc:var(--red)}.tab.A{--tc:var(--orange)}.tab.L{--tc:var(--magenta)}
 :root[data-theme="dark"] .tab.N[aria-selected="true"]{color:var(--paper)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tab.N[aria-selected="true"]{color:var(--paper)}}
 .search{padding-bottom:10px}
 .search input{width:100%;background:var(--desk);border:1px solid var(--rule);border-radius:6px;padding:11px 12px;font:inherit;font-size:16px;color:var(--ink)}
 
 main{display:grid;grid-template-columns:1fr}
-@media (min-width:900px){main{grid-template-columns:340px 1fr}#idx{border-right:1px solid var(--rule);height:calc(100dvh - var(--hh,160px));overflow:auto;position:sticky;top:var(--hh,160px)}#back{display:none!important}}
+@media (min-width:900px){main{grid-template-columns:340px 1fr}#idx{border-right:1px solid var(--rule);height:calc(100vh - var(--hh,170px));height:calc(100dvh - var(--hh,170px));overflow:auto;position:sticky;top:var(--hh,170px);-webkit-overflow-scrolling:touch}#back{display:none!important}}
 @media (max-width:899px){main.reading #idx{display:none}main:not(.reading) #view{display:none}}
 
 #idx{padding-block:6px 40px}
@@ -70,10 +66,10 @@ main{display:grid;grid-template-columns:1fr}
 .cl .mk{width:5px;align-self:stretch;flex:none}
 .cl.E .mk{background:repeating-linear-gradient(var(--red) 0 6px,transparent 6px 10px)}
 .cl.A .mk{background:repeating-linear-gradient(var(--orange) 0 6px,transparent 6px 10px)}
-.cl.N .mk{background:var(--ink)}.cl.L .mk{background:var(--navy)}
+.cl.N .mk{background:var(--ink)}.cl.L .mk{background:var(--magenta)}
 .cl .pr{margin-left:auto;font-size:12px;color:var(--dim);white-space:nowrap}
 .cl .pr.ok{color:var(--green);font-weight:700}
-.cl[aria-current="true"]{outline:2px solid var(--navy);outline-offset:-1px}
+.cl[aria-current="true"]{outline:2px solid var(--ink);outline-offset:-1px}
 .empty{color:var(--dim);padding:24px 0}
 
 #view{min-width:0;padding-top:12px;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
@@ -115,6 +111,8 @@ h1{display:inline-block;font-size:21px;line-height:1.25;margin:0;text-transform:
 .l1{margin-left:22px}.l2{margin-left:44px}.l3{margin-left:66px}
 .cond.l1,.cond.l2,.cond.l3{margin-left:0}
 .done-banner{margin:14px 6px 4px;padding:10px;border:2px solid var(--green);color:var(--green);text-align:center;font-weight:700;letter-spacing:.06em}
+.resetall{display:block;width:100%;max-width:860px;margin:14px auto 0;min-height:56px;border:2px dashed var(--red);color:var(--red);background:var(--paper);font-weight:700;font-size:14px;border-radius:4px}
+.resetall.ok{border-style:solid;border-color:var(--green);color:var(--green)}
 .foot-note{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;font-style:italic;margin-top:18px;border-top:1px solid var(--rule);padding-top:8px}
 .foot-note .x{color:var(--red);font-weight:700}
 
@@ -123,9 +121,10 @@ h1{display:inline-block;font-size:21px;line-height:1.25;margin:0;text-transform:
 .fb{border:2px solid var(--rule);border-radius:6px;font-weight:700;font-size:13px;min-height:60px;padding:0 14px;background:var(--paper)}
 .fb.main{flex:1;background:var(--navy);border-color:var(--navy);color:#fff;font-size:15px;text-transform:uppercase}
 :root[data-theme="dark"] .fb.main{color:var(--paper)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .fb.main{color:var(--paper)}}
 .fb.main.fin{background:var(--green);border-color:var(--green)}
 .fb.warn{color:var(--red);border-color:var(--red)}
+.fb.all{border-style:dashed;line-height:1.15}
+.fb.ok{color:var(--green);border-color:var(--green);border-style:solid}
 .fb.undo{color:var(--navy);border-color:var(--navy)}
 
 .tblw{overflow-x:auto;margin:8px 0 16px}
@@ -144,7 +143,7 @@ td.plain,th.plain{background:var(--paper)}
 .seg{display:flex;justify-content:center;margin:10px 0 2px}
 .seg>div{display:inline-flex;border:2px solid var(--navy);border-radius:6px;overflow:hidden}
 .seg button{padding:9px 16px;font-size:13px;font-weight:700;color:var(--navy);min-height:44px}
-.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.seg button[aria-pressed="true"]{background:var(--navy);color:var(--paper)}
 .lim h2{font-size:14px;font-weight:700;text-transform:uppercase;margin:22px 0 4px;color:var(--ink)}
 .lim p{color:var(--dim);font-size:13.5px;margin:6px 0;max-width:68ch;line-height:1.45}
 .src{font-size:12px;color:var(--dim);font-style:italic;text-align:center;margin-top:6px}
@@ -156,7 +155,7 @@ td.plain,th.plain{background:var(--paper)}
 <header id="hdr">
   <div class="bar gut">
     <button id="back" class="ibtn" hidden>‹ INDEX</button>
-    <div><div class="brand">DA42 NG-VI NXI<b>QRH</b></div><div class="ed">Edition # 1.1 · 15.05.2020 · Does not replace the AFM</div></div>
+    <div><div class="brand">DA42 NG-VI NXI<b>QRH</b></div><div class="ed">Edition # 1.1 · 15.05.2020 · Does not replace the AFM · <b>app v4</b></div></div>
     <div class="sp"></div>
     <button id="theme" class="ibtn" aria-label="Changer de thème">NUIT</button>
   </div>
@@ -1163,7 +1162,7 @@ function renderView(){
   h+=`</div>${footNote}</article>`;
   const nextId=c.s==="N"?normalSeq[normalSeq.indexOf(c.id)+1]:null;
   h+=`<div class="foot gut">`;
-  h+= st.undo===c.id ? `<button class="fb undo" id="undo">UNDO</button>` : `<button class="fb warn" id="reset">RESET</button>`;
+  h+=`<button class="fb warn" id="reset">RESET</button><button class="fb warn all" id="resetall">RESET<br>ALL</button>`;
   if(act>=0) h+=`<button class="fb main" id="next">✓ ${esc(c.nodes[act].c).slice(0,26)}</button>`;
   else if(nextId) h+=`<button class="fb main fin" data-go="${nextId}">NEXT ▸ ${esc(byId[nextId].t)}</button>`;
   else h+=`<button class="fb main fin" id="toidx">INDEX</button>`;
@@ -1228,15 +1227,13 @@ function scrollActive(){
   const r=a.getBoundingClientRect(); const hh=$("#hdr").getBoundingClientRect().bottom; const fb=window.innerHeight-130;
   if(r.top<hh+10||r.bottom>fb) window.scrollBy({top:r.top-(hh+(fb-hh)/3),behavior:"smooth"});
 }
-/* RESET: one tap clears the checklist; an UNDO button replaces it for 5 seconds. */
-let undoSet=null;
-function doReset(){
-  const id=st.open; undoSet=new Set(done[id]); done[id].clear(); saveDone(id); st.undo=id;
-  clearTimeout(undoTimer); undoTimer=setTimeout(()=>{ st.undo=null; undoSet=null; if(st.open===id) rerender(); },5000);
-  renderView(); renderIndex(); window.scrollTo(0,0);
-}
-function doUndo(){
-  const id=st.undo; if(!id||!undoSet) return; done[id]=undoSet; saveDone(id); undoSet=null; st.undo=null; clearTimeout(undoTimer); rerender();
+/* RESET: one tap clears the open checklist. RESET ALL: one tap clears every checklist in all three sections. */
+function doReset(){ const id=st.open; done[id].clear(); saveDone(id); renderView(); renderIndex(); window.scrollTo(0,0); }
+function doResetAll(){
+  CL.forEach(c=>{ done[c.id].clear(); saveDone(c.id); });
+  renderView(); renderIndex();
+  const b=$("#resetall"); if(b){ b.classList.add("ok"); b.innerHTML="✓ ALL<br>RESET"; setTimeout(()=>{ const x=$("#resetall"); if(x){ x.classList.remove("ok"); x.innerHTML="RESET<br>ALL"; } },2000); }
+  window.scrollTo(0,0);
 }
 
 document.addEventListener("click",e=>{
@@ -1248,7 +1245,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.i!=null){ toggle(+t.dataset.i); return; }
   if(t.id==="next"){ const a=activeIdx(byId[st.open]); if(a>=0) toggle(a); return; }
   if(t.id==="reset"){ doReset(); return; }
-  if(t.id==="undo"){ doUndo(); return; }
+  if(t.id==="resetall"){ doResetAll(); return; }
   if(t.id==="toidx"||t.id==="back"){ closeView(); return; }
   if(t.id==="theme"){ cycleTheme(); return; }
 });
@@ -1256,9 +1253,8 @@ document.addEventListener("keydown",e=>{ const t=e.target.closest&&e.target.clos
 $("#q").addEventListener("input",e=>{ st.q=e.target.value; renderIndex(); if(st.q&&window.innerWidth<900&&st.open){ st.open=null; main.classList.remove("reading"); $("#back").hidden=true; renderView(); } });
 
 /* ---------- THEME ---------- */
-function curTheme(){ return document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"); }
+function curTheme(){ return document.documentElement.getAttribute("data-theme")||"light"; }
 function applyTheme(){ const t=store.get("theme",null); if(t) document.documentElement.setAttribute("data-theme",t); $("#theme").textContent=curTheme()==="dark"?"JOUR":"NUIT"; }
-try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",applyTheme)}catch(e){}
 function cycleTheme(){ store.set("theme",curTheme()==="dark"?"light":"dark"); applyTheme(); }
 
 /* ---------- SCREEN WAKE LOCK ---------- */
@@ -1266,7 +1262,8 @@ let wl=null; async function wake(){ try{ if("wakeLock" in navigator && !wl){ wl=
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&st.open) wake(); });
 
 function hh(){ document.documentElement.style.setProperty("--hh",$("#hdr").offsetHeight+"px"); }
-window.addEventListener("resize",hh);
+window.addEventListener("resize",hh); window.addEventListener("orientationchange",()=>setTimeout(hh,300));
+try{ new ResizeObserver(hh).observe($("#hdr")); }catch(e){}
 
 applyTheme(); renderIndex(); renderView(); hh();
 if(window.innerWidth>=900) open("bef-start");
