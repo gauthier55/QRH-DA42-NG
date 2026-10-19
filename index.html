@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DA42 QRH">
-<meta name="theme-color" content="#0d141b">
+<meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}[hidden]{display:none!important}</style>
@@ -15,131 +15,155 @@
 <body>
 <title>DA42 NG QRH</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=B612:ital,wght@0,400;0,700;1,400&family=B612+Mono:wght@400;700&display=swap">
 <style>
-/* Layout: cockpit display. Sticky header with section tabs; index list ↔ checklist page; two panes on wide screens. */
+/* Layout: the Diamond paper checklist on a tablet. Desk-grey ground, white "paper" pages, Verdana, dotted leaders,
+   red dashed frame for Emergency, orange for Abnormal, navy for data. Index ↔ page; two panes on wide screens. */
 :root{
-  --bg:#05080c; --panel:#0d141b; --panel2:#121b24; --line:#1f2c39; --fg:#e8eef3; --dim:#8396a7;
-  --cyan:#3bd5ec; --green:#3fe383; --amber:#ffb42a; --red:#ff4d4d; --mag:#e45fe4;
-  --font:"B612","Helvetica Neue",Arial,sans-serif; --mono:"B612 Mono",ui-monospace,Menlo,monospace;
-  color-scheme:dark;
+  --desk:#e4e7eb; --paper:#ffffff; --ink:#111418; --dim:#59616c; --rule:#c4cad3;
+  --navy:#1f3f94; --red:#e1141c; --redfill:#ff5c5c; --orange:#f08c00; --orangefill:#ffc266;
+  --green:#178a3c; --hl:#fff1a6; --cyanfill:#cdf4fa; --greyfill:#e7e7e7; --magenta:#e51ce5; --pinkfill:#ff9fd0; --onfill:#111418;
+  --font:Verdana,Geneva,"DejaVu Sans",Tahoma,sans-serif;
+  color-scheme:light;
 }
-@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
-  --bg:#eef2f5; --panel:#ffffff; --panel2:#f6f8fa; --line:#cdd7e0; --fg:#0c1620; --dim:#556677;
-  --cyan:#06788e; --green:#0c8641; --amber:#9c5d00; --red:#c41b1b; --mag:#9b1f9b; color-scheme:light}}
-:root[data-theme="light"]{
-  --bg:#eef2f5; --panel:#ffffff; --panel2:#f6f8fa; --line:#cdd7e0; --fg:#0c1620; --dim:#556677;
-  --cyan:#06788e; --green:#0c8641; --amber:#9c5d00; --red:#c41b1b; --mag:#9b1f9b; color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --desk:#070b12; --paper:#101722; --ink:#e7ebf1; --dim:#98a3b3; --rule:#2a3546;
+  --navy:#86a2ff; --red:#ff5a5a; --redfill:#a3262a; --orange:#ffa733; --orangefill:#8a5208;
+  --green:#4fd67f; --hl:#3a3410; --cyanfill:#123f48; --greyfill:#1b2331; --magenta:#f06cf0; --pinkfill:#5a2246; --onfill:#ffffff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --desk:#070b12; --paper:#101722; --ink:#e7ebf1; --dim:#98a3b3; --rule:#2a3546;
+  --navy:#86a2ff; --red:#ff5a5a; --redfill:#a3262a; --orange:#ffa733; --orangefill:#8a5208;
+  --green:#4fd67f; --hl:#3a3410; --cyanfill:#123f48; --greyfill:#1b2331; --magenta:#f06cf0; --pinkfill:#5a2246; --onfill:#ffffff; color-scheme:dark}
 html,body{height:100%}
-body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+html{touch-action:manipulation}
+body{background:var(--desk);color:var(--ink);font-family:var(--font);font-size:16px;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 *{box-sizing:border-box}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-button:focus-visible,input:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-action:manipulation}
+button:focus-visible,input:focus-visible,[data-i]:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
 .gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--rule)}
 .bar{display:flex;align-items:center;gap:12px;padding-block:10px}
-.brand{font-family:var(--mono);font-weight:700;letter-spacing:.08em;font-size:17px}
-.brand b{color:var(--cyan)}
-.ed{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.04em}
+.brand{font-weight:700;font-style:italic;font-size:18px;letter-spacing:.01em}
+.brand b{color:var(--navy);font-style:normal;margin-left:4px}
+.ed{font-size:11px;color:var(--red);font-style:italic;margin-top:2px}
 .sp{flex:1}
-.ibtn{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--dim);min-height:40px}
+.ibtn{border:1px solid var(--rule);border-radius:6px;padding:8px 12px;font-size:12px;font-weight:700;color:var(--dim);min-height:40px;background:var(--paper)}
 .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding-bottom:10px}
-.tab{border:1px solid var(--line);border-radius:8px;padding:11px 4px;font-family:var(--mono);font-weight:700;font-size:13px;letter-spacing:.08em;color:var(--dim);min-height:46px}
-.tab[aria-selected="true"]{color:var(--bg)}
-.tab.N[aria-selected="true"]{background:var(--green);border-color:var(--green)}
-.tab.E[aria-selected="true"]{background:var(--red);border-color:var(--red)}
-.tab.A[aria-selected="true"]{background:var(--amber);border-color:var(--amber)}
-.tab.L[aria-selected="true"]{background:var(--cyan);border-color:var(--cyan)}
+.tab{border:2px solid var(--tc);border-radius:6px;padding:10px 2px;font-weight:700;font-size:12.5px;color:var(--tc);min-height:46px;background:var(--paper)}
+.tab[aria-selected="true"]{background:var(--tc);color:#fff}
+.tab.N{--tc:var(--ink)}.tab.E{--tc:var(--red)}.tab.A{--tc:var(--orange)}.tab.L{--tc:var(--navy)}
+:root[data-theme="dark"] .tab.N[aria-selected="true"]{color:var(--paper)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tab.N[aria-selected="true"]{color:var(--paper)}}
 .search{padding-bottom:10px}
-.search input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:11px 12px;font:inherit;font-size:16px;color:var(--fg)}
+.search input{width:100%;background:var(--desk);border:1px solid var(--rule);border-radius:6px;padding:11px 12px;font:inherit;font-size:16px;color:var(--ink)}
 
 main{display:grid;grid-template-columns:1fr}
-@media (min-width:900px){main{grid-template-columns:340px 1fr}#idx{border-right:1px solid var(--line);height:calc(100dvh - var(--hh,160px));overflow:auto;position:sticky;top:var(--hh,160px)}#back{display:none!important}}
+@media (min-width:900px){main{grid-template-columns:340px 1fr}#idx{border-right:1px solid var(--rule);height:calc(100dvh - var(--hh,160px));overflow:auto;position:sticky;top:var(--hh,160px)}#back{display:none!important}}
 @media (max-width:899px){main.reading #idx{display:none}main:not(.reading) #view{display:none}}
 
-#idx{padding-block:8px 40px}
-.grp{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase;padding:18px 0 6px}
-.cl{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:13px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);margin-top:6px;min-height:52px}
-.cl .t{font-weight:700;font-size:15px;line-height:1.25}
-.cl .s{font-size:12.5px;color:var(--dim);margin-top:2px}
-.cl .mk{width:4px;align-self:stretch;border-radius:2px;flex:none}
-.cl .pr{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dim);white-space:nowrap}
-.cl .pr.ok{color:var(--green)}
-.cl[aria-current="true"]{border-color:var(--cyan)}
-.mkN{background:var(--green)}.mkE{background:var(--red)}.mkA{background:var(--amber)}.mkL{background:var(--cyan)}
+#idx{padding-block:6px 40px}
+.grp{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;padding:18px 2px 6px;font-style:italic}
+.cl{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:12px;border:1px solid var(--rule);border-radius:4px;background:var(--paper);margin-top:6px;min-height:52px}
+.cl .t{font-weight:700;font-size:14.5px;line-height:1.3}
+.cl .s{font-size:12px;color:var(--dim);margin-top:2px}
+.cl .mk{width:5px;align-self:stretch;flex:none}
+.cl.E .mk{background:repeating-linear-gradient(var(--red) 0 6px,transparent 6px 10px)}
+.cl.A .mk{background:repeating-linear-gradient(var(--orange) 0 6px,transparent 6px 10px)}
+.cl.N .mk{background:var(--ink)}.cl.L .mk{background:var(--navy)}
+.cl .pr{margin-left:auto;font-size:12px;color:var(--dim);white-space:nowrap}
+.cl .pr.ok{color:var(--green);font-weight:700}
+.cl[aria-current="true"]{outline:2px solid var(--navy);outline-offset:-1px}
 .empty{color:var(--dim);padding:24px 0}
 
-#view{min-width:0;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
-.vh{padding-block:14px 10px;border-bottom:1px solid var(--line)}
-.vtop{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.sec{font-family:var(--mono);font-size:11px;letter-spacing:.14em;font-weight:700}
-.secN{color:var(--green)}.secE{color:var(--red)}.secA{color:var(--amber)}.secL{color:var(--cyan)}
-h1{font-size:22px;line-height:1.2;margin:0;text-wrap:balance;letter-spacing:.01em}
-.vsub{color:var(--dim);font-size:14px;margin-top:4px}
-.prog{height:4px;background:var(--line);border-radius:2px;margin-top:12px;overflow:hidden}
+#view{min-width:0;padding-top:12px;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+.page{background:var(--paper);max-width:860px;margin:0 auto;border:1px solid var(--rule);padding:14px 14px 18px}
+.page.E{border:5px dashed var(--red)}
+.page.A{border:5px dashed var(--orange)}
+.runhead{display:flex;justify-content:space-between;gap:10px;border:2px solid var(--ink);padding:5px 8px;font-weight:700;font-style:italic;font-size:12.5px}
+.page.E .runhead{background:var(--red);border-color:var(--red);color:#fff}
+.page.A .runhead{background:var(--orange);border-color:var(--orange);color:#fff}
+.ttl{text-align:center;margin:18px 0 6px}
+h1{display:inline-block;font-size:21px;line-height:1.25;margin:0;text-transform:uppercase;text-wrap:balance;letter-spacing:.01em;padding:4px 10px}
+.page.E h1{background:var(--redfill);border:2px solid var(--ink);color:var(--onfill)}
+.page.A h1{background:var(--orangefill);border:2px solid var(--ink);color:var(--onfill)}
+.page.N h1,.page.L h1{text-decoration:underline;text-underline-offset:5px}
+.vsub{text-align:center;color:var(--dim);font-size:13.5px;font-style:italic}
+.prog{height:5px;background:var(--greyfill);margin:14px 0 4px;overflow:hidden}
 .prog i{display:block;height:100%;background:var(--green);transition:width .2s}
 
-.items{padding-block:8px 20px;max-width:820px}
-.it{display:flex;align-items:baseline;gap:10px;padding:12px 10px;border:1px solid transparent;border-radius:8px;cursor:pointer;user-select:none;-webkit-user-select:none;min-height:48px}
-.it .n{font-family:var(--mono);font-size:13px;color:var(--dim);width:24px;text-align:right;flex:none}
-.it .n.dot::before{content:"·"}
+.items{padding-block:6px 4px}
+.it{display:flex;align-items:baseline;gap:8px;padding:10px 6px;border-radius:3px;cursor:pointer;user-select:none;-webkit-user-select:none;min-height:46px;position:relative}
+.it .n{font-size:14px;width:24px;text-align:right;flex:none}
+.it .n2{text-align:left;width:22px}
 .it .c{min-width:0;font-size:17px;line-height:1.3}
-.it .d{flex:1;border-bottom:2px dotted var(--line);min-width:16px;transform:translateY(-4px)}
-.it .r{font-family:var(--mono);font-weight:700;font-size:15px;color:var(--cyan);text-align:right;max-width:55%}
-.it .k{width:22px;flex:none;text-align:center;font-weight:700;color:var(--green)}
-.it.na .c{color:var(--fg)}
-.it.done .c,.it.done .r{color:var(--green)}
+.it .d{flex:1;border-bottom:2px dotted var(--ink);opacity:.55;min-width:14px;transform:translateY(-4px)}
+.it .r{font-size:16px;text-align:right;max-width:52%;text-transform:none}
+.it .k{width:22px;flex:none;text-align:center;font-weight:700;color:var(--green);font-size:18px}
+.it.done .c,.it.done .r,.it.done .n{color:var(--green)}
+.it.done .r{font-weight:700}
 .it.done .k::before{content:"✓"}
-.it.act{border-color:var(--cyan);background:var(--panel2)}
-.it .tg{font-family:var(--mono);font-size:10px;letter-spacing:.06em;border:1px solid var(--dim);color:var(--dim);border-radius:4px;padding:1px 4px;margin-left:6px;vertical-align:2px}
-.cond{display:flex;gap:8px;font-weight:700;font-size:16px;padding:12px 10px 4px;line-height:1.3}
-.cond::before{content:"▸";color:var(--amber)}
-.note{color:var(--dim);font-size:15px;padding:6px 10px 6px 44px;line-height:1.4;font-style:italic}
-.caut{border:1px solid var(--amber);color:var(--amber);border-radius:8px;padding:10px 12px;margin:8px 10px;font-size:15px;line-height:1.4;font-weight:700}
-.sub{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;padding:18px 10px 4px;border-bottom:1px solid var(--line);margin-bottom:4px}
-.lnk{display:inline-flex;align-items:center;gap:8px;margin:6px 10px 6px 44px;padding:10px 14px;border:1px solid var(--cyan);color:var(--cyan);border-radius:8px;font-weight:700;font-size:15px;min-height:44px}
+.it.act{background:var(--hl);box-shadow:inset 0 0 0 1px var(--orange)}
+.it .tg{font-size:10px;font-weight:700;border:1px solid var(--dim);color:var(--dim);border-radius:3px;padding:1px 4px;margin-left:6px;vertical-align:2px}
+.cond{display:flex;gap:8px;font-weight:700;font-size:16px;padding:12px 6px 4px;line-height:1.35;padding-left:calc(6px + var(--ind,0px))}
+.cond::before{content:"➜";color:var(--ink)}
+.note{color:var(--ink);font-size:15px;padding:6px 6px 6px 38px;line-height:1.4;text-align:left}
+.note.cen{text-align:center;padding-left:6px}
+.caut{border:2px solid var(--orange);border-radius:0;padding:9px 12px;margin:10px 6px;font-size:15px;line-height:1.4;font-weight:700;font-style:italic;text-align:center}
+.sub{font-weight:700;font-size:15px;text-decoration:underline;text-underline-offset:4px;padding:16px 6px 4px}
+.lnk{display:inline-flex;align-items:center;gap:8px;margin:6px 6px 6px 38px;padding:9px 14px;border:2px solid var(--navy);color:var(--navy);border-radius:4px;font-weight:700;font-size:14.5px;min-height:44px;background:var(--paper)}
 .l1{margin-left:22px}.l2{margin-left:44px}.l3{margin-left:66px}
-.cond.l1,.cond.l2,.cond.l3{margin-left:0;padding-left:calc(10px + var(--ind))}
-.done-banner{margin:14px 10px;padding:14px;border:2px solid var(--green);color:var(--green);border-radius:8px;text-align:center;font-family:var(--mono);font-weight:700;letter-spacing:.12em}
+.cond.l1,.cond.l2,.cond.l3{margin-left:0}
+.done-banner{margin:14px 6px 4px;padding:10px;border:2px solid var(--green);color:var(--green);text-align:center;font-weight:700;letter-spacing:.06em}
+.foot-note{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;font-style:italic;margin-top:18px;border-top:1px solid var(--rule);padding-top:8px}
+.foot-note .x{color:var(--red);font-weight:700}
 
-.foot{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px}
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--paper);border-top:1px solid var(--rule);padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px}
 @media (min-width:900px){.foot{left:340px}}
-.fb{border:1px solid var(--line);border-radius:10px;font-family:var(--mono);font-weight:700;letter-spacing:.08em;font-size:13px;min-height:60px;padding:0 14px}
-.fb.main{flex:1;background:var(--cyan);border-color:var(--cyan);color:var(--bg);font-size:16px}
+.fb{border:2px solid var(--rule);border-radius:6px;font-weight:700;font-size:13px;min-height:60px;padding:0 14px;background:var(--paper)}
+.fb.main{flex:1;background:var(--navy);border-color:var(--navy);color:#fff;font-size:15px;text-transform:uppercase}
+:root[data-theme="dark"] .fb.main{color:var(--paper)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .fb.main{color:var(--paper)}}
 .fb.main.fin{background:var(--green);border-color:var(--green)}
 .fb.warn{color:var(--red);border-color:var(--red)}
-.fb:disabled{opacity:.4}
+.fb.undo{color:var(--navy);border-color:var(--navy)}
 
-.tblw{overflow-x:auto;margin:8px 0 18px}
-table{border-collapse:collapse;font-size:14.5px;width:100%;min-width:480px}
-th,td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top}
-th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--dim);font-weight:700}
-td.v{font-family:var(--mono);font-weight:700;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
-td.v.c{color:var(--cyan)}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:12px 0 4px}
-.seg button{padding:10px 16px;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--dim);min-height:44px}
-.seg button[aria-pressed="true"]{background:var(--cyan);color:var(--bg)}
-.lim h2{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--cyan);margin:22px 0 4px}
-.lim p{color:var(--dim);font-size:14px;margin:6px 0;max-width:65ch;line-height:1.45}
-.disc{font-size:12.5px;color:var(--dim);line-height:1.45;padding:22px 0 8px;max-width:65ch}
-@media (max-width:520px){.it .c{font-size:16px}.it{flex-wrap:wrap}.it .d{display:none}.it .r{flex-basis:100%;text-align:left;max-width:none;padding-left:34px}.it .k{position:absolute;right:16px}.it{position:relative;padding-right:34px}}
+.tblw{overflow-x:auto;margin:8px 0 16px}
+table{border-collapse:collapse;font-size:14px;width:100%;min-width:460px;border:2px solid var(--ink)}
+th,td{border:1px solid var(--ink);padding:7px 8px;text-align:left;vertical-align:middle}
+thead th{font-size:12px;font-weight:700;background:var(--paper)}
+th.sec{background:var(--greyfill);text-align:center;font-size:13px}
+td{background:var(--greyfill)}
+td.v{text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:400}
+.d6{background:var(--cyanfill)!important}
+.sf{outline:3px solid var(--green);outline-offset:-3px}
+th.mass{background:var(--magenta);color:#fff}
+td.pink{background:var(--pinkfill)}
+td.plain,th.plain{background:var(--paper)}
+.r1{color:var(--red);font-weight:700}.y1{color:var(--orange);font-weight:700}.g1{color:var(--green);font-weight:700}
+.seg{display:flex;justify-content:center;margin:10px 0 2px}
+.seg>div{display:inline-flex;border:2px solid var(--navy);border-radius:6px;overflow:hidden}
+.seg button{padding:9px 16px;font-size:13px;font-weight:700;color:var(--navy);min-height:44px}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.lim h2{font-size:14px;font-weight:700;text-transform:uppercase;margin:22px 0 4px;color:var(--ink)}
+.lim p{color:var(--dim);font-size:13.5px;margin:6px 0;max-width:68ch;line-height:1.45}
+.src{font-size:12px;color:var(--dim);font-style:italic;text-align:center;margin-top:6px}
+@media (max-width:560px){.page{padding:10px 8px 14px}.page.E,.page.A{border-width:4px}.it{flex-wrap:wrap;padding-right:30px}.it .c{font-size:16px;flex:1}.it .d,.it .n2{display:none}.it .r{flex-basis:100%;text-align:left;max-width:none;padding-left:32px}.it .k{position:absolute;right:6px;top:10px}}
+@media (max-width:520px){.tab{font-size:10px;letter-spacing:0}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 
 <header id="hdr">
   <div class="bar gut">
     <button id="back" class="ibtn" hidden>‹ INDEX</button>
-    <div><div class="brand">DA42 NG <b>QRH</b></div><div class="ed">NG-VI NXI · ED 1.1 · 15.05.2020</div></div>
+    <div><div class="brand">DA42 NG-VI NXI<b>QRH</b></div><div class="ed">Edition # 1.1 · 15.05.2020 · Does not replace the AFM</div></div>
     <div class="sp"></div>
-    <button id="theme" class="ibtn" aria-label="Changer de thème">JOUR</button>
+    <button id="theme" class="ibtn" aria-label="Changer de thème">NUIT</button>
   </div>
   <div class="tabs gut" role="tablist">
     <button class="tab N" data-t="N" role="tab">NORMAL</button>
-    <button class="tab E" data-t="E" role="tab">EMER</button>
-    <button class="tab A" data-t="A" role="tab">ABN</button>
+    <button class="tab E" data-t="E" role="tab">EMERGENCY</button>
+    <button class="tab A" data-t="A" role="tab">ABNORMAL</button>
     <button class="tab L" data-t="L" role="tab">LIMITS</button>
   </div>
   <div class="search gut"><input id="q" type="search" placeholder="Rechercher : fire, ECU, gear, VYSE…" autocomplete="off" autocorrect="off" spellcheck="false"></div>
@@ -147,8 +171,9 @@ td.v.c{color:var(--cyan)}
 
 <main id="main">
   <nav id="idx" class="gut" aria-label="Index des checklists"></nav>
-  <section id="view"></section>
+  <section id="view" class="gut"></section>
 </main>
+
 
 <script>
 /* ---------- CHECKLIST DATA (transcribed from Diamond Flight Training, DA42 NG-VI NXI, Ed. 1.1, 15.05.2020) ----------
@@ -1050,12 +1075,43 @@ const store={get(k,d){try{const v=localStorage.getItem("da42qrh:"+k);return v==n
 const done={}; CL.forEach(c=>done[c.id]=new Set(store.get("d:"+c.id,[])));
 const saveDone=id=>store.set("d:"+id,[...done[id]]);
 
+/* ---------- AFM CHAPTER 2 DATA (DA 42 NG AFM Doc. 7.01.16-E, Rev. 5, 10-Jun-2021) ---------- */
+const AFM_MARK=[
+  ["RPM","–","–","up to 2300","–","above 2300"],
+  ["Oil pressure (bar)","below 0.9","0.9 – 2.5","2.5 – 6.0","6.0 – 6.5","above 6.5"],
+  ["Oil temp (°C)","below −30","−30 – 50","50 – 135","135 – 140","above 140"],
+  ["Coolant temp (°C)","below −30","−30 – 60","60 – 95","95 – 105","above 105"],
+  ["Gearbox temp (°C)","below −30","−30 – 35","35 – 115","115 – 120","above 120"],
+  ["Load (%)","–","–","up to 92","92 – 100","–"],
+  ["Fuel temp (°C) *","below −30","–","−30 – 55","55 – 60","above 60"],
+  ["Ammeter (A)","–","–","up to 60","60 – 70","above 70"],
+  ["Voltmeter (V)","below 24.1","24.1 – 25","25 – 30","30 – 32","above 32"],
+  ["Fuel qty (US gal)","below 1","1 – 25","–","–","–"]];
+const AFM_ENG=[
+  ["Engine","Austro Engine E4-C"],["Max take-off power","100 % (123.5 kW), max 5 min"],["Max continuous power","92 % (114 kW)"],
+  ["Max take-off / continuous RPM","2300"],["Max overspeed","2500 RPM, max 20 sec"],
+  ["Oil pressure min (< 1500 RPM)","0.9 bar"],["Oil pressure min (≥ 1500 RPM)","2.5 bar"],["Oil pressure max","6.5 bar"],
+  ["Oil quantity min / max","5.0 l / 7.0 l"],["Max oil consumption","0.1 l/h"],
+  ["Oil temperature min / max","−30 °C / 140 °C"],["Gearbox temp min / min full load / max","−30 / 35 / 120 °C"],
+  ["Coolant temp min start / min full load / max","−30 / 60 / 105 °C"],["Fuel temperature min / max","−30 °C / 60 °C"],
+  ["Fuel pressure min / max","4 bar / 7 bar"],["Voltage min / max","24.1 V / 32.0 V"],["Amperage max","70 A"],["Propeller diameter","190 cm"]];
+const AFM_FUEL=[["Main tanks","2 × 26.0 US gal (2 × 98.4 l)","2 × 25.0 US gal (2 × 94.6 l)"],
+  ["Auxiliary tanks (if installed)","2 × 13.7 US gal (2 × 52.0 l)","2 × 13.2 US gal (2 × 50.0 l)"],
+  ["Total with AUX","2 × 39.7 US gal (2 × 150.4 l)","2 × 38.2 US gal (2 × 144.6 l)"]];
+const AFM_MISC=[["Max operating altitude","18 000 ft PA"],["Max restart altitude – immediate","18 000 ft PA (15 000 ft with MÄM 42-938)"],["Max restart altitude – within 2 min","10 000 ft PA"],
+  ["Load factor at VO / VNE","+3.8 / −1.52"],["Load factor flaps APP or LDG","+2.0 / 0.0"],["Minimum crew / max occupants","1 / 4"],
+  ["Approved fuels","JET A, JET A-1, TS-1, RT, No. 3 Jet Fuel, JP-8 (F34) and blends"],["Max LH/RH fuel difference","5.0 US gal (18.9 l)"]];
+const AFM_CG=[["Forward","2.350 m (92.52 in)","1450 – 1468 kg"],["Forward","2.418 m (95.20 in)","1900 kg"],["Forward (MÄM 42-678)","2.434 m (95.83 in)","1999 kg"],
+  ["Rearward","2.454 m (96.61 in)","1450 kg"],["Rearward","2.480 m (97.64 in)","1700 kg to MTOM"]];
+
 /* ---------- STATE ---------- */
-const st={tab:store.get("tab","N"),open:null,q:"",lim:store.get("lim","1900"),armReset:false};
+const st={tab:store.get("tab","N"),open:null,q:"",lim:store.get("lim","1900"),undo:null};
 const $=s=>document.querySelector(s);
 const idx=$("#idx"), view=$("#view"), main=$("#main");
+let undoTimer=null;
 
 function progress(c){const r=c.req.length; if(!r) return null; const d=c.req.filter(i=>done[c.id].has(i)).length; return [d,r];}
+const LIMPAGES=[{id:"lim",t:"Important Data and Limitations",s:"Checklist p. 10–11 · speeds, masses, power check"},{id:"afm",t:"AFM Chapter 2 – Operating Limitations",s:"Engine limits, instrument markings, fuel, CG, load factors"}];
 
 function renderIndex(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(!st.q&&b.dataset.t===st.tab)));
@@ -1063,131 +1119,157 @@ function renderIndex(){
   let list, html="";
   if(q){
     list=CL.filter(c=>(c.t+" "+(c.sub||"")+" "+c.src).toLowerCase().includes(q));
-    if("limitations limits vyse vmca vref vne vno vfe speed mass power check".includes(q)||/^v/.test(q)) html+=limBtn();
+    const lp=LIMPAGES.filter(p=>(p.t+" "+p.s+" limits limitations vyse vmca vref vne vno vfe vlo speed mass oil coolant gearbox fuel cg load rpm").toLowerCase().includes(q));
+    if(lp.length) html+=limBtns(lp);
     if(!list.length&&!html) html=`<p class="empty">Aucune checklist ne contient « ${esc(st.q)} ».</p>`;
-  } else if(st.tab==="L"){ html=limBtn(); list=[]; }
+  } else if(st.tab==="L"){ html=limBtns(LIMPAGES); list=[]; }
   else list=CL.filter(c=>c.s===st.tab);
   let g=null;
   for(const c of list){
     const gl=q?SEC[c.s]:c.g;
     if(gl!==g){g=gl; html+=`<div class="grp">${esc(g)}</div>`;}
     const p=progress(c); const pr=p?(p[0]===p[1]?`<span class="pr ok">✓ DONE</span>`:p[0]?`<span class="pr">${p[0]}/${p[1]}</span>`:""):"";
-    html+=`<button class="cl" data-id="${c.id}" aria-current="${st.open===c.id}"><span class="mk mk${c.s}"></span><span><div class="t">${esc(c.t)}</div>${c.sub?`<div class="s">${esc(c.sub)}</div>`:""}</span>${pr}</button>`;
+    html+=`<button class="cl ${c.s}" data-id="${c.id}" aria-current="${st.open===c.id}"><span class="mk"></span><span><div class="t">${esc(c.t)}</div>${c.sub?`<div class="s">${esc(c.sub)}</div>`:""}</span>${pr}</button>`;
   }
   idx.innerHTML=html;
 }
-function limBtn(){return `<div class="grp">Limitations</div><button class="cl" data-id="lim" aria-current="${st.open==="lim"}"><span class="mk mkL"></span><span><div class="t">Important Data and Limitations</div><div class="s">Speeds · masses · available power check</div></span></button>`;}
+function limBtns(arr){return `<div class="grp">Limitations</div>`+arr.map(p=>`<button class="cl L" data-id="${p.id}" aria-current="${st.open===p.id}"><span class="mk"></span><span><div class="t">${esc(p.t)}</div><div class="s">${esc(p.s)}</div></span></button>`).join("");}
 
 function itemHTML(c,n,i,act){
   const tag=n.opt==="**"?'<span class="tg">AUX</span>':n.opt==="*"?'<span class="tg">ICE</span>':"";
-  const cls=`it l${n.lvl}${done[c.id].has(i)?" done":""}${i===act?" act":""}`;
-  return `<div class="${cls}" data-i="${i}" role="checkbox" aria-checked="${done[c.id].has(i)}" tabindex="0"><span class="n${n.no?"":" dot"}">${n.no||""}</span><span class="c">${esc(n.c)}${tag}</span>${n.r?`<span class="d"></span><span class="r">${esc(n.r)}</span>`:`<span class="d" style="border:0"></span>`}<span class="k"></span></div>`;
+  const d=done[c.id].has(i);
+  return `<div class="it l${n.lvl}${d?" done":""}${i===act?" act":""}" data-i="${i}" role="checkbox" aria-checked="${d}" tabindex="0"><span class="n">${n.no||""}</span><span class="c">${esc(n.c)}${tag}</span>${n.r?`<span class="d"></span><span class="r">${esc(n.r)}</span>`:`<span class="d" style="border:0"></span>`}<span class="n n2">${n.no||""}</span><span class="k"></span></div>`;
 }
 function activeIdx(c){ for(const i of c.all){ if(!done[c.id].has(i)) { if(!c.nodes[i].cond || !c.req.length) return i; } } return -1; }
+const RUN={N:"NORMAL PROCEDURES",E:"EMERGENCY PROCEDURES",A:"ABNORMAL PROCEDURES",L:"IMPORTANT DATA AND LIMITATIONS"};
+const footNote=`<div class="foot-note"><span>15.05.2020 · Diamond Flight Training · Edition # 1.1 NG-VI NXI</span><span class="x">Does not replace the Airplane Flight Manual</span></div>`;
 
 function renderView(){
   if(!st.open){view.innerHTML="";return;}
   if(st.open==="lim") return renderLim();
+  if(st.open==="afm") return renderAfm();
   const c=byId[st.open]; const act=activeIdx(c); const p=progress(c);
-  let h=`<div class="vh gut"><div class="vtop"><span class="sec sec${c.s}">${SEC[c.s]} · ${esc(c.g.toUpperCase())}</span></div><h1>${esc(c.t)}</h1>${c.sub?`<div class="vsub">${esc(c.sub)}</div>`:""}${p?`<div class="prog"><i style="width:${p[0]/p[1]*100}%"></i></div>`:""}</div><div class="items gut">`;
+  let h=`<article class="page ${c.s}"><div class="runhead"><span>DA42 NG-VI NXI</span><span>${RUN[c.s]}</span></div><div class="ttl"><h1>${esc(c.t)}</h1></div>${c.sub?`<div class="vsub">${esc(c.sub)}</div>`:""}${p?`<div class="prog"><i style="width:${p[0]/p[1]*100}%"></i></div>`:""}<div class="items">`;
   c.nodes.forEach((n,i)=>{
-    const ind=`style="--ind:${n.lvl*22}px"`;
     if(n.ty==="i") h+=itemHTML(c,n,i,act);
-    else if(n.ty==="c") h+=`<div class="cond l${n.lvl}" ${ind}>${esc(n.text)}</div>`;
+    else if(n.ty==="c") h+=`<div class="cond l${n.lvl}" style="--ind:${n.lvl*22}px">${esc(n.text)}</div>`;
     else if(n.ty==="n") h+=`<div class="note l${n.lvl}">${esc(n.text)}</div>`;
     else if(n.ty==="w") h+=`<div class="caut l${n.lvl}">${esc(n.text)}</div>`;
     else if(n.ty==="h") h+=`<div class="sub">${esc(n.text)}</div>`;
-    else if(n.ty==="l") h+=`<button class="lnk l${n.lvl}" data-go="${n.to}">→ ${esc(n.text)}</button>`;
+    else if(n.ty==="l") h+=`<button class="lnk l${n.lvl}" data-go="${n.to}">➜ ${esc(n.text)}</button>`;
     else if(n.ty==="t") h+=restartTable();
   });
-  const complete=p&&p[0]===p[1];
-  if(complete) h+=`<div class="done-banner">CHECKLIST COMPLETE</div>`;
-  h+=`</div>`;
+  if(p&&p[0]===p[1]) h+=`<div class="done-banner">END OF CHECKLIST</div>`;
+  h+=`</div>${footNote}</article>`;
   const nextId=c.s==="N"?normalSeq[normalSeq.indexOf(c.id)+1]:null;
-  h+=`<div class="foot gut"><button class="fb warn" id="reset">${st.armReset?"CONFIRM":"RESET"}</button>`;
-  if(act>=0) h+=`<button class="fb main" id="next">✓ ${esc(c.nodes[act].c.toUpperCase()).slice(0,26)}</button>`;
-  else if(nextId) h+=`<button class="fb main fin" data-go="${nextId}">NEXT ▸ ${esc(byId[nextId].t.toUpperCase())}</button>`;
+  h+=`<div class="foot gut">`;
+  h+= st.undo===c.id ? `<button class="fb undo" id="undo">UNDO</button>` : `<button class="fb warn" id="reset">RESET</button>`;
+  if(act>=0) h+=`<button class="fb main" id="next">✓ ${esc(c.nodes[act].c).slice(0,26)}</button>`;
+  else if(nextId) h+=`<button class="fb main fin" data-go="${nextId}">NEXT ▸ ${esc(byId[nextId].t)}</button>`;
   else h+=`<button class="fb main fin" id="toidx">INDEX</button>`;
   h+=`</div>`;
   view.innerHTML=h;
 }
 function restartTable(){
-  return `<div class="tblw"><table><thead><tr><th>ALTITUDE</th><th>WITH STARTER</th><th>WINDMILLING<br><span style="color:var(--red)">demo & training not approved</span></th></tr></thead><tbody>
-  <tr><td><b>15.000 – 10.000 ft PA</b></td><td>Immediate restart<br><b>Max 100 KIAS</b> or stationary prop, whichever is lower.<br>Do not engage starter when prop is windmilling.</td><td>Immediate restart<br><b>Min 125 KIAS<br>Max 145 KIAS</b></td></tr>
-  <tr><td><b>Up to 10.000 ft PA</b></td><td colspan="2">Max engine OFF time: OAT below −15 °C <b>2 min</b> · OAT −15 to −5 °C <b>5 min</b> · OAT above −5 °C <b>10 min</b></td></tr>
-  <tr><td></td><td><b>Max 100 KIAS</b> or stationary prop, whichever is lower.<br>Do not engage starter when prop is windmilling.</td><td><b>Min 125 KIAS<br>Max 145 KIAS</b></td></tr></tbody></table></div>`;
+  return `<div class="tblw"><table><thead><tr><th class="plain"></th><th class="plain"><i>With starter</i></th><th class="plain"><i>Windmilling</i><br><span class="r1" style="font-size:11px">demonstration and training not approved</span></th></tr></thead><tbody>
+  <tr><td class="plain"><b><i>15.000 – 10.000 ft PA</i></b></td><td class="plain"><b><i>Immediate restart<br>Max 100 KIAS</i></b> or stationary prop, whichever is lower.<br>Do not engage starter when prop is windmilling.</td><td class="plain"><b><i>Immediate restart<br>Min 125 KIAS<br>Max 145 KIAS</i></b></td></tr>
+  <tr><td class="plain" rowspan="2"><b><i>Up to 10.000 ft PA</i></b></td><td class="plain" colspan="2">OAT below −15 °C: max engine OFF time <b>2 min</b><br>OAT −15 to −5 °C: max engine OFF time <b>5 min</b><br>OAT above −5 °C: max engine OFF time <b>10 min</b></td></tr>
+  <tr><td class="plain"><b><i>Max 100 KIAS</i></b> or stationary prop, whichever is lower.<br>Do not engage starter when prop is windmilling.</td><td class="plain"><b><i>Min 125 KIAS<br>Max 145 KIAS</i></b></td></tr></tbody></table></div>`;
 }
+const v=(a,cls="")=>`<td class="v ${cls}">${esc(a)}</td>`;
+function limHead(title,sub){return `<article class="page L lim"><div class="runhead"><span>DA42 NG</span><span>${RUN.L}</span></div><div class="ttl"><h1>${esc(title)}</h1></div>${sub?`<div class="vsub">${sub}</div>`:""}`;}
 function renderLim(){
-  const L=LIM[st.lim]; const v=(a,cls="")=>`<td class="v ${cls}">${esc(a)}</td>`;
-  let h=`<div class="vh gut"><div class="vtop"><span class="sec secL">LIMITATIONS</span></div><h1>Important Data and Limitations</h1><div class="vsub">${esc(L.note)}</div>
-  <div class="seg" role="group"><button data-lim="1900" aria-pressed="${st.lim==="1900"}">1900 kg</button><button data-lim="1999" aria-pressed="${st.lim==="1999"}">1999 kg</button></div></div><div class="items lim gut">`;
-  h+=`<h2>STALLING SPEEDS · KIAS · ${esc(L.label)}</h2><div class="tblw"><table><thead><tr><th></th><th>NG</th><th>DASH-6</th></tr></thead><tbody>`+L.stall.map(r=>`<tr><td>${esc(r[0])}</td>${v(r[1],"c")}${v(r[2],"c")}</tr>`).join("")+`</tbody></table></div><p>In ice: + 4 to 6 KIAS.</p>`;
-  h+=`<h2>OPERATING SPEEDS · KIAS</h2><div class="tblw"><table><thead><tr><th></th><th>NG</th><th>DASH-6</th><th>NG<br>SHORT FIELD</th><th>DASH-6<br>SHORT FIELD</th></tr></thead><tbody>
-  <tr><td>VMCA – Flaps UP</td>${v(L.vmca[0][0],"c")}${v(L.vmca[0][1],"c")}<td></td><td></td></tr>
-  <tr><td>VMCA – Flaps APP</td>${v(L.vmca[1][0],"c")}${v(L.vmca[1][1],"c")}<td></td><td></td></tr>
-  <tr><td>Rotation speed</td>${L.vr.map(x=>v(x,"c")).join("")}</tr>
-  <tr><td>Best angle of climb VX</td>${L.vx.map(x=>v(x,"c")).join("")}</tr>
-  <tr><td>Best rate of climb VY</td><td class="v c" colspan="2">${L.vy[0]}</td><td class="v c" colspan="2">${L.vy[1]}</td></tr>
-  </tbody></table></div><p>Short field take-off with flaps APP.</p>`;
-  const rows=[["VYSE – best rate of climb 1 engine (blue line)",L.vyse],["VYSE – in ice",L.vyseIce],["Operating speed in ice","118 – 156"],["VFE – Flaps APP","133"],["VFE – Flaps LDG","113"],["VLOE – max LG extension","188"],["VLE – max LG extended","188"],["VLOR – max LG retraction","152"],["Min. go-around speed, Flaps UP",L.vga],["VNO – max cruising speed","151"],["VNE – never exceed speed","188"]];
-  h+=`<div class="tblw"><table><tbody>`+rows.map(r=>`<tr><td>${esc(r[0])}</td>${v(r[1],"c")}</tr>`).join("")+`</tbody></table></div>`;
-  h+=`<h2>APPROACH VREF · KIAS</h2><div class="tblw"><table><thead><tr><th></th><th>NORMAL</th><th>IN ICE</th></tr></thead><tbody>`+L.vref.map(r=>`<tr><td>${r[0]}</td>${v(r[1],"c")}${v(r[2],"c")}</tr>`).join("")+`</tbody></table></div>`;
-  h+=`<h2>MANOEUVRING SPEED VO · KIAS</h2><div class="tblw"><table><thead><tr>${L.vo.map(r=>`<th>UP TO ${r[0]}</th>`).join("")}</tr></thead><tbody><tr>${L.vo.map(r=>v(r[1],"c")).join("")}</tr></tbody></table></div>`;
-  h+=`<h2>MASS</h2><div class="tblw"><table><tbody>`+L.mass.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}</tr>`).join("")+`<tr><td>Max. baggage in NOSE</td>${v("30 kg")}</tr><tr><td>Max. baggage in COCKPIT</td>${v("45 kg")}</tr><tr><td>Max. baggage in rear EXTENSION</td>${v("18 kg")}</tr><tr><td>Max. COCKPIT + rear EXTENSION combined</td>${v("45 kg")}</tr></tbody></table></div><p>"Ice" = ice accumulation and/or icing conditions.</p>`;
-  h+=`<h2 id="power">AVAILABLE POWER CHECK</h2><p>10 sec power MAX, RPM 2250 – 2300, minimum load according to the table.</p><div class="tblw"><table><thead><tr><th>ALT FT \\ OAT °C</th>${POWER.temps.map(t=>`<th>${t}</th>`).join("")}</tr></thead><tbody>`+POWER.rows.map(r=>`<tr><td><b>${r[0]}</b></td>${r.slice(1).map(x=>v(x==="–"?"–":x+" %","c")).join("")}</tr>`).join("")+`</tbody></table></div>`;
-  h+=`<p class="disc">Transcription of the Diamond Flight Training checklist DA42 NG-VI NXI, edition 1.1 (15.05.2020). Recommended operator checklist, for reference only. Does not replace the Airplane Flight Manual or the approved paper checklist.</p></div>`;
+  const L=LIM[st.lim];
+  let h=limHead("Important Data and Limitations",`All masses and speeds are for ACFT <span class="r1">${st.lim==="1900"?"without":"with"}</span> increase of MTOM, MZFM, MLM`)+
+  `<div class="seg"><div role="group"><button data-lim="1900" aria-pressed="${st.lim==="1900"}">MTOM 1900 kg</button><button data-lim="1999" aria-pressed="${st.lim==="1999"}">MTOM 1999 kg</button></div></div>`;
+  h+=`<h2>Stalling speeds KIAS for ${esc(L.label)}</h2><div class="tblw"><table><thead><tr><th class="plain"></th><th class="plain">"NG"</th><th class="plain d6">"Dash-6"</th></tr></thead><tbody>`+L.stall.map(r=>`<tr><td>${esc(r[0])}</td>${v(r[1])}${v(r[2])}</tr>`).join("")+`<tr><td colspan="3" style="text-align:center">In ice: + 4–6 KIAS</td></tr></tbody></table></div>`;
+  h+=`<h2>Operating speeds KIAS for ${esc(L.label)}</h2><div class="tblw"><table><thead><tr><th class="plain"></th><th class="plain">"NG"</th><th class="plain d6">"Dash-6"</th><th class="plain sf">"NG" short field</th><th class="plain d6 sf">"Dash-6" short field</th></tr></thead><tbody>
+  <tr><td>Min. control speed (VMCA) – Flaps UP</td>${v(L.vmca[0][0])}${v(L.vmca[0][1],"d6")}<td class="plain" colspan="2" rowspan="2" style="text-align:center"><b>Short field TKOF<br>with flaps APP</b></td></tr>
+  <tr><td>Min. control speed (VMCA) – Flaps APP</td>${v(L.vmca[1][0])}${v(L.vmca[1][1],"d6")}</tr>
+  <tr><td>Rotation speed</td>${v(L.vr[0])}${v(L.vr[1],"d6")}${v(L.vr[2],"sf")}${v(L.vr[3],"d6 sf")}</tr>
+  <tr><td>Best angle of climb (VX)</td>${v(L.vx[0])}${v(L.vx[1],"d6")}${v(L.vx[2],"sf")}${v(L.vx[3],"d6 sf")}</tr>
+  <tr><td>Best rate of climb (VY)</td><td class="v" colspan="2">${L.vy[0]}</td><td class="v sf" colspan="2">${L.vy[1]}</td></tr></tbody></table></div>`;
+  const rows=[["Best rate of climb 1-eng. (VYSE) – blue line",L.vyse],["VYSE – "+L.vyseIce.replace(/^\d+ \(|\)$/g,""),L.vyseIce.split(" ")[0]],["Operating speed in ice","118 – 156"],["Max. flap speed (VFE) Flaps APP","133"],["Max. flap speed (VFE) Flaps LDG","113"],["Max. LG extension (VLOE)","188"],["Max. LG extended (VLE)","188"],["Max. LG retraction (VLOR)","152"]];
+  h+=`<div class="tblw"><table><tbody>`+rows.map(r=>`<tr><td>${esc(r[0])}</td>${v(r[1])}</tr>`).join("")+L.vref.map(r=>`<tr><td>Approach VREF ${r[0]}</td><td class="v">${r[1]} &nbsp; <i>in ice: ${r[2]}</i></td></tr>`).join("")+`<tr><td>Min. go-around speed Flaps UP</td>${v(L.vga)}</tr><tr><td>Max. cruising speed (VNO)</td>${v("151")}</tr><tr><td>Never exceed speed (VNE)</td>${v("188")}</tr></tbody></table></div>`;
+  h+=`<h2>Manoeuvring speed (VO)</h2><div class="tblw"><table><thead><tr>${L.vo.map(r=>`<th class="plain">up to ${r[0]}</th>`).join("")}</tr></thead><tbody><tr>${L.vo.map(r=>v(r[1])).join("")}</tr></tbody></table></div>`;
+  h+=`<div class="tblw"><table><thead><tr><th class="mass" colspan="2">MASS</th></tr></thead><tbody>`+L.mass.map(r=>`<tr><td class="pink">${r[0]}</td><td class="v pink">${r[1]}</td></tr>`).join("")+`<tr><td class="pink">Max. baggage in NOSE</td><td class="v pink">30 kg</td></tr><tr><td class="pink">Max. baggage in COCKPIT</td><td class="v pink">45 kg</td></tr><tr><td class="pink">Max. baggage in rear EXTENSION</td><td class="v pink">18 kg</td></tr><tr><td class="pink">COCKPIT + rear EXTENSION together</td><td class="v pink">45 kg</td></tr></tbody></table></div><p>"Ice": ice accumulation and/or icing conditions.</p>`;
+  h+=`<h2>Available power check</h2><p>10 sec power MAX, RPM 2250 – 2300, minimum load according to the table below.</p><div class="tblw"><table><thead><tr><th class="plain">Altitude [ft]</th>${POWER.temps.map(t=>`<th class="plain">${t} °C</th>`).join("")}</tr></thead><tbody>`+POWER.rows.map(r=>`<tr><td class="plain"><b>${r[0]}</b></td>${r.slice(1).map(x=>`<td class="v plain">${x==="–"?"–":x+" %"}</td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
+  h+=footNote+`</article>`;
+  view.innerHTML=h;
+}
+function renderAfm(){
+  let h=limHead("Operating Limitations","DA 42 NG Airplane Flight Manual, Doc. 7.01.16-E, Rev. 5 (10-Jun-2021), Chapter 2");
+  h+=`<h2>Engine instrument markings (2.5)</h2><div class="tblw"><table><thead><tr><th class="plain">Indication</th><th class="plain r1">Red<br>low</th><th class="plain y1">Yellow</th><th class="plain g1">Green<br>normal</th><th class="plain y1">Yellow</th><th class="plain r1">Red<br>high</th></tr></thead><tbody>`+
+    AFM_MARK.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}${v(r[2])}${v(r[3])}${v(r[4])}${v(r[5])}</tr>`).join("")+`</tbody></table></div><p>* Fuel temp: G1000 software P/N 010-00670-12 or later. Earlier software: yellow −30 to −20 °C, green −20 to 55 °C.</p>`;
+  h+=`<h2>Power plant limitations (2.4)</h2><div class="tblw"><table><tbody>`+AFM_ENG.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}</tr>`).join("")+`</tbody></table></div>`;
+  h+=`<h2>Airspeed indicator markings (2.3)</h2><div class="tblw"><table><tbody><tr><td>White arc – flaps fully extended</td>${v("62 – 113 (64 – 113 MÄM 42-678)")}</tr><tr><td>Green arc – normal operating range</td>${v("68 – 151 (72 – 151 MÄM 42-678)")}</tr><tr><td>Yellow arc – caution, smooth air only</td>${v("151 – 188")}</tr><tr><td>Blue radial – VYSE</td>${v("85")}</tr><tr><td>Red radial – VMCA</td>${v("71")}</tr><tr><td>Red radial – VNE</td>${v("188")}</tr></tbody></table></div>`;
+  h+=`<h2>Fuel (2.14)</h2><div class="tblw"><table><thead><tr><th class="plain"></th><th class="plain">Total capacity</th><th class="plain">Usable</th></tr></thead><tbody>`+AFM_FUEL.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}${v(r[2])}</tr>`).join("")+`</tbody></table></div>`;
+  h+=`<h2>Centre of gravity (2.8)</h2><div class="tblw"><table><thead><tr><th class="plain">Limit</th><th class="plain">Aft of datum</th><th class="plain">Mass</th></tr></thead><tbody>`+AFM_CG.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}${v(r[2])}</tr>`).join("")+`</tbody></table></div><p>Linear variation between the points.</p>`;
+  h+=`<h2>Other limitations</h2><div class="tblw"><table><tbody>`+AFM_MISC.map(r=>`<tr><td>${r[0]}</td><td class="v" style="white-space:normal">${esc(r[1])}</td></tr>`).join("")+`</tbody></table></div>`;
+  h+=`<p class="src">Always check against the AFM revision and supplements applicable to your aircraft (MÄM / OÄM status).</p>`+footNote+`</article>`;
   view.innerHTML=h;
 }
 
 /* ---------- NAVIGATION ---------- */
-function open(id,push=true){
-  st.open=id; st.armReset=false; main.classList.add("reading"); $("#back").hidden=false;
-  if(id!=="lim"&&byId[id]){ st.tab=byId[id].s; store.set("tab",st.tab); } else if(id==="lim"){ st.tab="L"; }
-  renderIndex(); renderView(); window.scrollTo(0,0);
-  wake();
+function open(id){
+  st.open=id; st.undo=null; main.classList.add("reading"); $("#back").hidden=false;
+  if(byId[id]){ st.tab=byId[id].s; store.set("tab",st.tab); } else { st.tab="L"; }
+  renderIndex(); renderView(); window.scrollTo(0,0); wake();
 }
-function closeView(){ st.open=null; main.classList.remove("reading"); $("#back").hidden=true; renderIndex(); renderView(); window.scrollTo(0,0); }
+function closeView(){ st.open=null; st.undo=null; main.classList.remove("reading"); $("#back").hidden=true; renderIndex(); renderView(); window.scrollTo(0,0); }
 
+function rerender(){ const y=window.scrollY; renderView(); renderIndex(); window.scrollTo(0,y); }
 function toggle(i){
-  const c=byId[st.open]; const s=done[c.id];
-  s.has(i)?s.delete(i):s.add(i); saveDone(c.id); st.armReset=false;
-  const y=window.scrollY; renderView(); renderIndex(); window.scrollTo(0,y); scrollActive();
+  const s=done[st.open]; s.has(i)?s.delete(i):s.add(i); saveDone(st.open); st.undo=null;
+  rerender(); scrollActive();
 }
 function scrollActive(){
   const a=view.querySelector(".it.act"); if(!a) return;
   const r=a.getBoundingClientRect(); const hh=$("#hdr").getBoundingClientRect().bottom; const fb=window.innerHeight-130;
-  if(r.top<hh+10||r.bottom>fb) window.scrollBy({top:r.top-(hh+ (fb-hh)/3),behavior:"smooth"});
+  if(r.top<hh+10||r.bottom>fb) window.scrollBy({top:r.top-(hh+(fb-hh)/3),behavior:"smooth"});
+}
+/* RESET: one tap clears the checklist; an UNDO button replaces it for 5 seconds. */
+let undoSet=null;
+function doReset(){
+  const id=st.open; undoSet=new Set(done[id]); done[id].clear(); saveDone(id); st.undo=id;
+  clearTimeout(undoTimer); undoTimer=setTimeout(()=>{ st.undo=null; undoSet=null; if(st.open===id) rerender(); },5000);
+  renderView(); renderIndex(); window.scrollTo(0,0);
+}
+function doUndo(){
+  const id=st.undo; if(!id||!undoSet) return; done[id]=undoSet; saveDone(id); undoSet=null; st.undo=null; clearTimeout(undoTimer); rerender();
 }
 
 document.addEventListener("click",e=>{
   const t=e.target.closest("button,[data-i]"); if(!t) return;
   if(t.dataset.t){ st.tab=t.dataset.t; st.q=""; $("#q").value=""; store.set("tab",st.tab); renderIndex(); if(window.innerWidth<900&&st.open) closeView(); return; }
   if(t.dataset.id){ open(t.dataset.id); return; }
-  if(t.dataset.go){ open(t.dataset.go==="lim"?"lim":t.dataset.go); return; }
+  if(t.dataset.go){ open(t.dataset.go); return; }
   if(t.dataset.lim){ st.lim=t.dataset.lim; store.set("lim",st.lim); renderView(); return; }
   if(t.dataset.i!=null){ toggle(+t.dataset.i); return; }
-  if(t.id==="next"){ const c=byId[st.open]; const a=activeIdx(c); if(a>=0) toggle(a); return; }
-  if(t.id==="reset"){ if(st.armReset){ done[st.open].clear(); saveDone(st.open); st.armReset=false; renderView(); renderIndex(); window.scrollTo(0,0);} else { st.armReset=true; t.textContent="CONFIRM"; setTimeout(()=>{ if(st.armReset){st.armReset=false; const b=$("#reset"); if(b) b.textContent="RESET";}},3000);} return; }
+  if(t.id==="next"){ const a=activeIdx(byId[st.open]); if(a>=0) toggle(a); return; }
+  if(t.id==="reset"){ doReset(); return; }
+  if(t.id==="undo"){ doUndo(); return; }
   if(t.id==="toidx"||t.id==="back"){ closeView(); return; }
   if(t.id==="theme"){ cycleTheme(); return; }
 });
-document.addEventListener("keydown",e=>{ const t=e.target.closest("[data-i]"); if(t&&(e.key===" "||e.key==="Enter")){ e.preventDefault(); toggle(+t.dataset.i);} });
+document.addEventListener("keydown",e=>{ const t=e.target.closest&&e.target.closest("[data-i]"); if(t&&(e.key===" "||e.key==="Enter")){ e.preventDefault(); toggle(+t.dataset.i);} });
 $("#q").addEventListener("input",e=>{ st.q=e.target.value; renderIndex(); if(st.q&&window.innerWidth<900&&st.open){ st.open=null; main.classList.remove("reading"); $("#back").hidden=true; renderView(); } });
 
 /* ---------- THEME ---------- */
-function applyTheme(){ const t=store.get("theme",null); if(t) document.documentElement.setAttribute("data-theme",t); const cur=t||document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"); $("#theme").textContent=cur==="dark"?"JOUR":"NUIT"; }
-function cycleTheme(){ const cur=document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"); store.set("theme",cur==="dark"?"light":"dark"); applyTheme(); }
+function curTheme(){ return document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"); }
+function applyTheme(){ const t=store.get("theme",null); if(t) document.documentElement.setAttribute("data-theme",t); $("#theme").textContent=curTheme()==="dark"?"JOUR":"NUIT"; }
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",applyTheme)}catch(e){}
+function cycleTheme(){ store.set("theme",curTheme()==="dark"?"light":"dark"); applyTheme(); }
 
-/* ---------- SCREEN WAKE LOCK (keeps the iPad awake while a checklist is open) ---------- */
+/* ---------- SCREEN WAKE LOCK ---------- */
 let wl=null; async function wake(){ try{ if("wakeLock" in navigator && !wl){ wl=await navigator.wakeLock.request("screen"); wl.addEventListener("release",()=>wl=null);} }catch(e){} }
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&st.open) wake(); });
 
-/* ---------- HEADER HEIGHT for sticky index pane ---------- */
 function hh(){ document.documentElement.style.setProperty("--hh",$("#hdr").offsetHeight+"px"); }
 window.addEventListener("resize",hh);
 
 applyTheme(); renderIndex(); renderView(); hh();
-if(window.innerWidth>=900) open("bef-start",false);
+if(window.innerWidth>=900) open("bef-start");
 </script>
 
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
