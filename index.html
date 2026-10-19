@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DA42 QRH">
+<meta name="theme-color" content="#0d141b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>DA42 NG QRH</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=B612:ital,wght@0,400;0,700;1,400&family=B612+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: cockpit display. Sticky header with section tabs; index list ↔ checklist page; two panes on wide screens. */
+:root{
+  --bg:#05080c; --panel:#0d141b; --panel2:#121b24; --line:#1f2c39; --fg:#e8eef3; --dim:#8396a7;
+  --cyan:#3bd5ec; --green:#3fe383; --amber:#ffb42a; --red:#ff4d4d; --mag:#e45fe4;
+  --font:"B612","Helvetica Neue",Arial,sans-serif; --mono:"B612 Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#eef2f5; --panel:#ffffff; --panel2:#f6f8fa; --line:#cdd7e0; --fg:#0c1620; --dim:#556677;
+  --cyan:#06788e; --green:#0c8641; --amber:#9c5d00; --red:#c41b1b; --mag:#9b1f9b; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#eef2f5; --panel:#ffffff; --panel2:#f6f8fa; --line:#cdd7e0; --fg:#0c1620; --dim:#556677;
+  --cyan:#06788e; --green:#0c8641; --amber:#9c5d00; --red:#c41b1b; --mag:#9b1f9b; color-scheme:light}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:12px;padding-block:10px}
+.brand{font-family:var(--mono);font-weight:700;letter-spacing:.08em;font-size:17px}
+.brand b{color:var(--cyan)}
+.ed{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.04em}
+.sp{flex:1}
+.ibtn{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--dim);min-height:40px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding-bottom:10px}
+.tab{border:1px solid var(--line);border-radius:8px;padding:11px 4px;font-family:var(--mono);font-weight:700;font-size:13px;letter-spacing:.08em;color:var(--dim);min-height:46px}
+.tab[aria-selected="true"]{color:var(--bg)}
+.tab.N[aria-selected="true"]{background:var(--green);border-color:var(--green)}
+.tab.E[aria-selected="true"]{background:var(--red);border-color:var(--red)}
+.tab.A[aria-selected="true"]{background:var(--amber);border-color:var(--amber)}
+.tab.L[aria-selected="true"]{background:var(--cyan);border-color:var(--cyan)}
+.search{padding-bottom:10px}
+.search input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:11px 12px;font:inherit;font-size:16px;color:var(--fg)}
+
+main{display:grid;grid-template-columns:1fr}
+@media (min-width:900px){main{grid-template-columns:340px 1fr}#idx{border-right:1px solid var(--line);height:calc(100dvh - var(--hh,160px));overflow:auto;position:sticky;top:var(--hh,160px)}#back{display:none!important}}
+@media (max-width:899px){main.reading #idx{display:none}main:not(.reading) #view{display:none}}
+
+#idx{padding-block:8px 40px}
+.grp{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase;padding:18px 0 6px}
+.cl{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:13px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);margin-top:6px;min-height:52px}
+.cl .t{font-weight:700;font-size:15px;line-height:1.25}
+.cl .s{font-size:12.5px;color:var(--dim);margin-top:2px}
+.cl .mk{width:4px;align-self:stretch;border-radius:2px;flex:none}
+.cl .pr{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dim);white-space:nowrap}
+.cl .pr.ok{color:var(--green)}
+.cl[aria-current="true"]{border-color:var(--cyan)}
+.mkN{background:var(--green)}.mkE{background:var(--red)}.mkA{background:var(--amber)}.mkL{background:var(--cyan)}
+.empty{color:var(--dim);padding:24px 0}
+
+#view{min-width:0;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+.vh{padding-block:14px 10px;border-bottom:1px solid var(--line)}
+.vtop{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sec{font-family:var(--mono);font-size:11px;letter-spacing:.14em;font-weight:700}
+.secN{color:var(--green)}.secE{color:var(--red)}.secA{color:var(--amber)}.secL{color:var(--cyan)}
+h1{font-size:22px;line-height:1.2;margin:0;text-wrap:balance;letter-spacing:.01em}
+.vsub{color:var(--dim);font-size:14px;margin-top:4px}
+.prog{height:4px;background:var(--line);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--green);transition:width .2s}
+
+.items{padding-block:8px 20px;max-width:820px}
+.it{display:flex;align-items:baseline;gap:10px;padding:12px 10px;border:1px solid transparent;border-radius:8px;cursor:pointer;user-select:none;-webkit-user-select:none;min-height:48px}
+.it .n{font-family:var(--mono);font-size:13px;color:var(--dim);width:24px;text-align:right;flex:none}
+.it .n.dot::before{content:"·"}
+.it .c{min-width:0;font-size:17px;line-height:1.3}
+.it .d{flex:1;border-bottom:2px dotted var(--line);min-width:16px;transform:translateY(-4px)}
+.it .r{font-family:var(--mono);font-weight:700;font-size:15px;color:var(--cyan);text-align:right;max-width:55%}
+.it .k{width:22px;flex:none;text-align:center;font-weight:700;color:var(--green)}
+.it.na .c{color:var(--fg)}
+.it.done .c,.it.done .r{color:var(--green)}
+.it.done .k::before{content:"✓"}
+.it.act{border-color:var(--cyan);background:var(--panel2)}
+.it .tg{font-family:var(--mono);font-size:10px;letter-spacing:.06em;border:1px solid var(--dim);color:var(--dim);border-radius:4px;padding:1px 4px;margin-left:6px;vertical-align:2px}
+.cond{display:flex;gap:8px;font-weight:700;font-size:16px;padding:12px 10px 4px;line-height:1.3}
+.cond::before{content:"▸";color:var(--amber)}
+.note{color:var(--dim);font-size:15px;padding:6px 10px 6px 44px;line-height:1.4;font-style:italic}
+.caut{border:1px solid var(--amber);color:var(--amber);border-radius:8px;padding:10px 12px;margin:8px 10px;font-size:15px;line-height:1.4;font-weight:700}
+.sub{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;padding:18px 10px 4px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.lnk{display:inline-flex;align-items:center;gap:8px;margin:6px 10px 6px 44px;padding:10px 14px;border:1px solid var(--cyan);color:var(--cyan);border-radius:8px;font-weight:700;font-size:15px;min-height:44px}
+.l1{margin-left:22px}.l2{margin-left:44px}.l3{margin-left:66px}
+.cond.l1,.cond.l2,.cond.l3{margin-left:0;padding-left:calc(10px + var(--ind))}
+.done-banner{margin:14px 10px;padding:14px;border:2px solid var(--green);color:var(--green);border-radius:8px;text-align:center;font-family:var(--mono);font-weight:700;letter-spacing:.12em}
+
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px}
+@media (min-width:900px){.foot{left:340px}}
+.fb{border:1px solid var(--line);border-radius:10px;font-family:var(--mono);font-weight:700;letter-spacing:.08em;font-size:13px;min-height:60px;padding:0 14px}
+.fb.main{flex:1;background:var(--cyan);border-color:var(--cyan);color:var(--bg);font-size:16px}
+.fb.main.fin{background:var(--green);border-color:var(--green)}
+.fb.warn{color:var(--red);border-color:var(--red)}
+.fb:disabled{opacity:.4}
+
+.tblw{overflow-x:auto;margin:8px 0 18px}
+table{border-collapse:collapse;font-size:14.5px;width:100%;min-width:480px}
+th,td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--dim);font-weight:700}
+td.v{font-family:var(--mono);font-weight:700;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.v.c{color:var(--cyan)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:12px 0 4px}
+.seg button{padding:10px 16px;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--dim);min-height:44px}
+.seg button[aria-pressed="true"]{background:var(--cyan);color:var(--bg)}
+.lim h2{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--cyan);margin:22px 0 4px}
+.lim p{color:var(--dim);font-size:14px;margin:6px 0;max-width:65ch;line-height:1.45}
+.disc{font-size:12.5px;color:var(--dim);line-height:1.45;padding:22px 0 8px;max-width:65ch}
+@media (max-width:520px){.it .c{font-size:16px}.it{flex-wrap:wrap}.it .d{display:none}.it .r{flex-basis:100%;text-align:left;max-width:none;padding-left:34px}.it .k{position:absolute;right:16px}.it{position:relative;padding-right:34px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<header id="hdr">
+  <div class="bar gut">
+    <button id="back" class="ibtn" hidden>‹ INDEX</button>
+    <div><div class="brand">DA42 NG <b>QRH</b></div><div class="ed">NG-VI NXI · ED 1.1 · 15.05.2020</div></div>
+    <div class="sp"></div>
+    <button id="theme" class="ibtn" aria-label="Changer de thème">JOUR</button>
+  </div>
+  <div class="tabs gut" role="tablist">
+    <button class="tab N" data-t="N" role="tab">NORMAL</button>
+    <button class="tab E" data-t="E" role="tab">EMER</button>
+    <button class="tab A" data-t="A" role="tab">ABN</button>
+    <button class="tab L" data-t="L" role="tab">LIMITS</button>
+  </div>
+  <div class="search gut"><input id="q" type="search" placeholder="Rechercher : fire, ECU, gear, VYSE…" autocomplete="off" autocorrect="off" spellcheck="false"></div>
+</header>
+
+<main id="main">
+  <nav id="idx" class="gut" aria-label="Index des checklists"></nav>
+  <section id="view"></section>
+</main>
+
+<script>
+/* ---------- CHECKLIST DATA (transcribed from Diamond Flight Training, DA42 NG-VI NXI, Ed. 1.1, 15.05.2020) ----------
+   Syntax:  "- Challenge | RESPONSE" numbered item · "-7 ..." item with explicit number · ". ..." unnumbered check
+            "> ..." condition · "~ ..." note · "! ..." caution · "= ..." sub-header · "@id Label" link · "%table" table
+            leading "*" = if ice protection installed, "**" = if AUX tanks installed · 2 spaces = one indent level        */
+const CL = [
+/* ===================== NORMAL ===================== */
+{id:"pre-int",s:"N",g:"Preflight",t:"Preflight Interior + Exterior",src:`
+~ * if ice protection installed · ** if AUX tanks installed
+- Airplane documents | CHECK
+- Pitot cover | REMOVE
+- Interior: foreign or loose objects | CHECK
+- Circuit breakers | CHECK
+- Start key | PULLED OUT
+- Gear selector | CHECKED DOWN
+- Electric Master | ON
+  ~ Check battery voltage
+- Gear 3 greens | CHECKED
+- Fuel quantity + temp | CHECK
+- **AUX PUMPS (2) | ON
+  > If AUX FUEL E caution ON: AUX tank(s) empty
+    . **AUX PUMPS (2) | OFF
+- External lights | ON
+- Parking brake | SET
+- Pitot heat | ON
+- *De-ice fluid quantity | CHECK
+- *De-ice pump | SELECT 1
+- *De-ice | HIGH/MAX
+- *DEIC PRES LO + HI | CHECK OUT
+- *De-ice pump | SELECT 2
+- *DEIC PRES LO + HI | CHECK OUT
+- *Ice lights | ON
+- *De-ice function | CHECK
+- External lights | CHECK
+- Stall warning | CHECK
+- Pitot tube heat | CHECK
+- Pitot heat | OFF
+- External lights | OFF
+- *De-ice, ice lights | OFF
+- Electric Master | OFF`},
+{id:"pre-ext",s:"N",g:"Preflight",t:"Preflight Exterior",src:`
+. Canopy left side
+= Left main gear
+. Strut (min 4 cm bare piston) & downlock
+. Tire condition, pressure (4,5 bar), position mark
+. Brake, hydraulic line
+. Gear door & linkage
+= Left engine nacelle
+. Drain gascolator and sample check
+. 2 / 3 air inlets
+. Spinner, propeller
+. Gearbox oil level
+. Engine oil level
+. Cowling
+. Nacelle underside
+. Venting pipe
+. Exhaust
+. **Check AUX tank full
+= Left wing
+. Vortex generators
+. Wing leading edge, top and bottom surface
+. Tank drain and sample check
+. Stall warning
+. Tank air vent
+. Fuel filler cap
+. Pitot probe (cover removed)
+. Wing tip, position light
+. Static dischargers
+. Aileron (freedom of movement, hinges, control linkage, covers if DA42)
+. Wing flap – hinge pin (covers)
+. Fuel cooler air in- & outlet
+. 2 air outlets
+. **AUX tank vent
+. **AUX tank drain and sample check
+= Left fuselage
+. Step
+. Rear cabin door
+. Fuselage left side
+. Static source
+. Antennas
+! Attention! For use of fuel additives see AFM
+= Tail
+. Elevator & rudder (freedom of movement, hinges)
+. Elevator & rudder trim tabs
+. Tail skid & lower fin
+. Static dischargers
+= Right fuselage
+. Fuselage right side
+. Static source
+. Rear window
+. Step
+= Right wing
+. Fuel cooler air in- & outlet
+. **AUX tank vent
+. **Drain AUX tank
+. Wing flap
+. Aileron (freedom of movement, hinges, control linkage, security)
+. Static dischargers
+. Wing tip, position light
+. Wing leading edge, top and bottom surface
+. Fuel filler cap
+. Tank air vent
+. Tank drain
+. Cabin air vent inlet
+. Vortex generators
+. Canopy right side
+= Right engine nacelle
+. **Check AUX tank full
+. 3 air inlets / 2 air outlets
+. Spinner, propeller
+. Gearbox oil level
+. Engine oil level
+. Cowling
+. Nacelle underside
+. Venting pipe
+. Exhaust
+. Drain gascolator
+. Ventilation air inlet
+= Right main gear
+. Strut (min 4 cm bare piston) & downlock
+. Tire condition, pressure (4,5 bar), position mark
+. Brake, hydraulic line
+. Gear door & linkage
+= Nose section
+. *De-ice fluid tank
+. L + R front baggage door locked
+. OAT sensor
+. EPU connection
+. Landing / Taxi light
+= Nose gear
+. Strut (min 15 cm bare piston) & lock
+. Tire condition, pressure (6 bar), position mark
+. Gear door & linkage
+. Chocks removed
+. Tow bar removed`},
+{id:"bef-start",s:"N",g:"Ground",t:"Check Before Engine Start",src:`
+~ Items 1 to 23 may be completed by heart. Complete them on the paper checklist before using the G1000 electronic checklist.
+- Preflight check | COMPLETED
+- Baggage and tow bar | SECURED
+- **AUX PUMPS (2) | OFF
+- Fuel selectors (2) | ON, safety guard closed
+- Power levers (2) | IDLE
+- Parking brake | SET
+- Alternate air | CLOSED
+- Fuel pumps (2) | OFF
+- Manual gear extension handle | PUSHED
+- Gear selector | DOWN
+- Avionic master | OFF
+- Electric master | OFF
+- Engine masters (2) | OFF
+- Pitot heat | OFF
+- Alternate static | CLOSED
+- Alternators (2) | ON
+- VOTER switches (2) | AUTO
+- All light switches | OFF
+- Emergency switch | OFF/GUARDED
+- ELT | ARMED
+- Circuit breakers | CHECKED IN
+- Flap selector | UP
+> If starting with external power:
+  . Prop area | CHECK CLEAR
+  . External power | CONNECT
+- Electric master | ON
+- Rudder pedals | ADJUSTED
+- Flight controls | CHECKED
+- Trims | CHECKED
+- Gear warning + lights, fire detector | TEST
+- *De-ice ANNUN TEST | ON
+- *DEICE LVL LO caution | CHECKED ON if applic.
+- *Windshield de-icing | PUMP 1 + 2 CHECKED
+- Flaps full travel → LDG → UP | CHECKED
+- Variable elevator stop | CHECK
+  . Control stick | AFT and HOLD
+  . Power levers | MAX
+  ~ Check stop limit decreasing
+  . Power levers | IDLE
+  ~ Check stop limit increasing
+- Passengers | INSTRUCTED
+- Seat belts | FASTENED
+- Rear door | CLOSED and LATCHED
+- Front canopy | POS 1 or 2
+- G1000 | POWERED, ACKNOWLEDGED
+- MFD – EIS | ENGINE
+- Fuel quantity | CHECKED, RESET/SET if requ.
+- Fuel temperature | CHECKED
+- Total time in service | NOTED
+- *DEIC PRESS LO caution | CHECKED ON
+- *De-ice ANNUN TEST | OFF
+- Start key | INSERTED
+- Power levers (2) | IDLE
+- ACL (strobe) | ON`},
+{id:"eng-start",s:"N",g:"Ground",t:"Engine Start Procedure",sub:"Normal sequence: LH engine first",src:`
+= LH engine
+. Propeller area | CLEAR
+. Engine Master | ON
+. Annunciations / Eng. Instr. | CHECKED
+. Glow indication | OFF
+. Start key | START
+. Oil pressure | OUTSIDE RED within 3 sec
+. Voltage, electrical load | CHECK INDICATION
+. Annunciations / Eng. Instr. | CHECK
+= RH engine
+. Propeller area | CLEAR
+. Engine Master | ON
+. Annunciations / Eng. Instr. | CHECKED
+. Glow indication | OFF
+. Start key | START
+. Oil pressure | OUTSIDE RED within 3 sec
+. Voltage, electrical load | CHECK INDICATION
+. Annunciations / Eng. Instr. | CHECK
+> If external power was used:
+  . External power | DISCONNECT`},
+{id:"aft-start",s:"N",g:"Ground",t:"Check After Engine Start",src:`
+- Oil pressure | CHECKED
+- RPM 710 ± 30 | CHECKED
+- Fuel selectors (2) | X-FEED
+- Pitot heat | ON, annunciation + Amps checked
+- Pitot heat | OFF
+- Avionics master | ON
+- WX radar (if installed) | VERIFY STBY
+- FMS setup | COMPLETED
+  ~ I – Initialize profile (AUX 4, MAP)
+  ~ F – Flight plan
+  ~ R – Radios (COM, NAV, ADF, DME, CDI, BRG 1/2, AUX, RAIM)
+  ~ P – Performance (speed bugs; Flight ID if applicable)
+- Autopilot test | COMPLETED
+  ~ DISCONN press, check electric trim not working
+  ~ AP ON, check annunciations and FD
+  ~ DISCONN press, check AP off
+  ~ GA button press, check FD commands climb
+  ~ FD off
+- Flood light | CHECKED, ON as required
+- Position lights | ON as required
+- Fuel selectors (2) | ON
+- Altimeters (2) | SET
+- Standby horizon | CHECKED
+- Transponder | CODE / MODE CHECKED
+- Engine temperatures | CHECKED
+- Parking brake | RELEASED
+! Max power 50 % until engine temperatures in green range`},
+{id:"taxi",s:"N",g:"Ground",t:"During Taxi",src:`
+. Brakes | CHECK
+. Nose wheel steering | CHECK
+. Flight instruments | CHECK`},
+{id:"bef-to",s:"N",g:"Ground",t:"Before Take-off Check",src:`
+- Parking brake | SET
+- Seat belts | FASTENED
+- Adjustable backrest | UPRIGHT
+- Rear door | CLOSED + LATCHED
+- Front canopy | CLOSED + LATCHED
+- Front baggage doors | CHECKED CLOSED
+- Door warning light | OFF
+- Circuit breakers | CHECKED
+- Electric elevator trim | CHECKED, T/O SET
+- Fuel selectors (2) | CHECKED ON
+- Rudder trim | AS REQUIRED
+- Flaps | Normal T/O: UP · Short field: APP
+- Flight controls | CHECKED
+- Power levers (2) | IDLE
+- MFD – EIS | ENGINE
+- Engine instruments | CHECKED
+! Engine temperatures must be in green range before performing ECU test (gearbox min 38 °C recommended). For warm-up max power 50 %.
+- VOTER switches (2) | A, AUTO, B, AUTO
+- ECU test (2) | PERFORMED
+  . ECU test buttons (2) | PRESS and HOLD
+  . "L/R ECU A/B FAIL" | ON
+  . Props | CYCLING
+  . "L/R ECU A/B FAIL" | OFF
+  . ECU test button | RELEASE
+- Pitot heat | AS REQUIRED
+- *Ice protection | AS REQUIRED
+- Transponder | CODE / MODE CHECKED
+- Fuel pumps (2) | ON
+- MFD – EIS | DEFAULT
+- Parking brake | RELEASED`},
+{id:"lineup",s:"N",g:"Flight",t:"Line Up Procedure",src:`
+. Landing light | ON
+. Approach sector | CLEAR
+. Runway | IDENTIFIED
+. Available power check | PERFORMED
+@lim Available power check table (Limits)`},
+{id:"aft-to",s:"N",g:"Flight",t:"After Take-off Procedure",src:`
+. Brakes | APPLY
+. Gear | UP
+~ Alternate air: OPEN in rain, snow, visible moisture
+> At safe altitude:
+  . Flaps | UP
+  . Climb power | 92 %`},
+{id:"climb",s:"N",g:"Flight",t:"Climb to Cruise Check",src:`
+- Gear | CHECKED UP
+- Flaps | CHECKED UP
+- Fuel pumps (2) | OFF
+- Climb power | SET
+- Alternate air | AS REQUIRED
+- Landing light | OFF`},
+{id:"descent",s:"N",g:"Flight",t:"Descent / Approach Check",src:`
+- Landing data | RECEIVED
+- Altimeters (2) | SET
+- COM / NAV / FMS | SET
+- Safety harnesses | FASTENED
+- Adjustable backrests | UPRIGHT
+- Parking brake | CHECKED RELEASED
+- Rudder trim | AS REQUIRED
+- Gear warning + lights | TEST
+- Landing light | ON
+> Normal approach:
+  -10 Fuel selectors (2) | CHECKED ON
+  -11 Fuel pumps (2) | ON
+> 1 engine out approach:
+  -10 Fuel selector (good engine) | CHECKED ON
+  -11 Fuel pumps (good engine) | ON`},
+{id:"final",s:"N",g:"Flight",t:"Final Check",src:`
+- Flaps | LDG
+- Gear | 3 GREENS CHECKED
+- Rudder trim | NEUTRAL`},
+{id:"ga",s:"N",g:"Flight",t:"Go-around Procedure",src:`
+. Power | MAX
+. Flaps | APP
+> Positive rate of climb:
+  . Gear | UP
+  . Flaps | UP
+~ Continue with take-off profile
+> At safe altitude:
+  . Climb power | 92 %`},
+{id:"aft-ldg",s:"N",g:"After landing",t:"After Landing Check",sub:"When clear of runway",src:`
+- Alternate air | CLOSED
+- Pitot heat | OFF
+- Flaps | UP
+- Fuel pumps (2) | OFF
+- *De-ice systems | OFF
+- Landing/Taxi light | AS REQUIRED`},
+{id:"parking",s:"N",g:"After landing",t:"Parking Check",src:`
+- Parking brake | SET
+- Power levers (2) | max 10 % for 1 min
+- ELT | CHECK not activated
+- MFD – EIS | ENGINE
+- MFD – EIS | TTL TIME IN SVC NOTED
+- Avionic master | OFF
+- Electrical consumers except ACL (strobe) | OFF
+- Engine masters (2) | OFF
+- ACL (strobe) | OFF
+~ When engine indications X-ed out:
+- Electric master | OFF
+- Interior light | CHECKED OFF
+- Start key | REMOVED`},
+{id:"secure",s:"N",g:"After landing",t:"Securing the Aircraft",src:`
+. Chocks | USE
+~ Consider parking brake released
+. Pitot probe | COVER
+. Tie-down ropes to mooring points | CONSIDER`},
+
+/* ===================== EMERGENCY ===================== */
+{id:"eng-out-ldg",s:"E",g:"Engines out",t:"Engines Out Landing",sub:"2 engines out",src:`
+- Mayday call | CONSIDER
+- Engine masters (2) | OFF
+- Alternators (2) | OFF
+- Fuel pumps (2) | OFF
+- Fuel selectors (2) | OFF
+- Avionic master | OFF
+- Safety harnesses | FASTENED and TIGHT
+~ When sure of making landing area:
+- Flaps | APP or LDG, as required
+- Approach speed | min 84 KIAS
+- Power levers (2) | IDLE
+> Gear UP landing – after touchdown:
+  -11 Electric master | OFF
+> Gear DOWN landing:
+  -11 Gear | DOWN, 3 GREENS CHECKED
+  -12 Electric master | OFF`},
+{id:"w-amps",s:"E",g:"G1000 Warnings",t:"L/R ALTN AMPS",sub:"High current (red range)",src:`
+. Check circuit breakers
+. Reduce electrical load and land at nearest suitable airfield`},
+{id:"oil-pres",s:"E",g:"G1000 Warnings",t:"L/R OIL PRES",sub:"Oil pressure low (red range)",src:`
+. Reduce power on affected engine
+. Be prepared for loss of oil and an engine failure; land at nearest suitable airfield`},
+{id:"oil-temp",s:"E",g:"G1000 Warnings",t:"L/R OIL TEMP",sub:"Oil temperature high (red range)",src:`
+. Check oil pressure
+> If oil pressure too low (outside green range):
+  . Reduce power on affected engine
+  . Expect loss of engine oil
+  . Be prepared for an engine failure
+> If oil pressure in green range:
+  . Reduce power on affected engine
+  . Increase airspeed
+  > If oil temperature not returning to green range:
+    . Be prepared for an engine failure; land at nearest suitable airfield`},
+{id:"gbox",s:"E",g:"G1000 Warnings",t:"L/R GBOX TEMP",sub:"Gearbox temperature high (red range)",src:`
+. Reduce power on affected engine
+. Increase airspeed
+> If gearbox temperature still in red range:
+  . Land at nearest suitable airfield
+  . Be prepared for an engine failure`},
+{id:"eng-temp",s:"E",g:"G1000 Warnings",t:"L/R ENG TEMP",sub:"Coolant temperature high (red range)",src:`
+. Check G1000 for LOW COOL LVL caution light
+> If LOW COOL LVL caution light OFF:
+  > During climb:
+    . Reduce power on affected engine by 10 % or more as required
+    . Increase airspeed by 10 KIAS or more as required
+    > If coolant temp. not returning to green range within 60 sec:
+      . Reduce power on affected engine as much as possible and increase airspeed
+  > During cruise:
+    . Reduce power on affected engine
+    . Increase airspeed
+    > If coolant temp. not returning to green range:
+      . Be prepared for an engine failure; land at nearest suitable airfield
+> If LOW COOL LVL caution light ON:
+  . Reduce power on affected engine
+  . Expect loss of coolant fluid
+  . Be prepared for an engine failure`},
+{id:"fuel-temp",s:"E",g:"G1000 Warnings",t:"L/R FUEL TEMP",sub:"Fuel temperature high (red range)",src:`
+. Reduce power on affected engine
+. Increase airspeed
+. Transfer fuel from AUX to MAIN tank if applicable
+> If not returning to green range:
+  . Land at nearest suitable airfield`},
+{id:"fuel-pres",s:"E",g:"G1000 Warnings",t:"L/R FUEL PRES",sub:"Fuel pressure low",src:`
+. Check fuel quantity
+. FUEL SELECTOR of affected engine | CHECK ON
+. FUEL PUMPS of affected engine | ON
+> If warning remains:
+  . FUEL PUMPS of affected engine | OFF
+  . FUEL SELECTOR of affected engine | CROSSFEED
+  > If warning still remains:
+    . Be prepared for an engine failure`},
+{id:"starter",s:"E",g:"G1000 Warnings",t:"L/R STARTER",sub:"Starter not disengaging",src:`
+> On ground:
+  . Affected power lever | IDLE
+  . Affected engine master | OFF
+  . Electric master | OFF
+> In flight:
+  . LDG LT/START CB (RH Main Bus) | PULL
+  ~ Push again when LDG light needed
+  . Watch engine cowling and instruments
+  . Land at nearest suitable airfield`},
+{id:"door",s:"E",g:"G1000 Warnings",t:"DOOR OPEN",sub:"Unlocked doors",src:`
+. Reduce airspeed immediately
+. Check canopy visually
+> If open:
+  . Airspeed below 140 KIAS, land at nearest suitable airfield
+. Check rear door visually
+> If open:
+  . Airspeed below 140 KIAS, land at nearest suitable airfield
+  ! Do not try to lock door in flight
+. Check front baggage doors visually
+> If one or both open:
+  . Reduce airspeed to keep door(s) in stable position, land at nearest suitable airfield`},
+{id:"eng-fire",s:"E",g:"G1000 Warnings",t:"L/R ENG FIRE",sub:"Engine fire – on ground, during take-off, in flight",src:`
+~ G1000 warning L/R ENG FIRE or engine fire observed
+> On ground:
+  -1 Engine masters (2) | OFF
+  -2 Fuel selectors (2) | OFF
+  -3 Mayday call | CONSIDER
+  -4 Electric master | OFF
+  ~ When engine and aircraft stopped:
+  -5 Canopy | OPEN
+  . Evacuate
+> During take-off:
+  -1 Cabin heat & defrost | OFF
+  -2 Emergency windows (2) | OPEN
+  -3 Proceed according ENGINE FAILURE DURING TAKE-OFF
+  @eng-fail-to Engine failure during take-off
+> In flight (L/R ENG FIRE warning):
+  . Evaluate the situation
+  > If engine fire observed:
+    @eng-fire-flt Engine fire in flight`},
+{id:"eng-fail-to",s:"E",g:"Engine",t:"Engine Failure During Take-off",sub:"Rejected take-off or emergency re-landing",src:`
+- Power | OFF
+- Brakes | APPLY
+- ATC | INFORM
+> If necessary:
+  -4 Engine masters (2) | OFF
+  -5 Fuel selectors (2) | OFF
+  -6 Electric master | OFF`},
+{id:"eng-fail-flt",s:"E",g:"Engine",t:"Engine Failure in Flight",sub:"and engine shutdown",src:`
+> If airspeed below VMCA:
+  . Perform VMC recovery procedure
+~ Airspeed above VMCA:
+- Power | INCREASE up to MAX
+- Airspeed | min BLUE LINE
+- Landing gear | UP
+- Flaps | UP
+- Power lever (affected engine) | REDUCE TO VERIFY
+- Engine master (affected engine) | OFF
+~ Above safe altitude:
+- Power (live engine) | up to MAX CONTINUOUS
+- Alternator (dead engine) | OFF
+- Fuel pumps (dead engine) | OFF
+- Fuel selector (dead engine) | OFF`},
+{id:"eng-trouble",s:"E",g:"Engine",t:"Engine Troubleshooting",src:`
+> If L or R ECU A AND B FAIL simultaneously and ALL of the following exist: indicated LOAD unchanged · perceived thrust reduced · engine noise changes or engine running rough
+  -1 POWER lever | IDLE for 1 second
+  -2 POWER lever | slowly increase to 1975 RPM
+  > If engine shows power loss during the POWER lever increase:
+    -3 POWER lever | IDLE for 1 second
+    -4 POWER lever | slowly increase
+    ~ Stop prior to the RPM where former engine power loss was observed
+  ! Do not increase the POWER lever past 1975 RPM or the setting determined in step 4. An increase beyond this setting leads into another power loss.
+  ~ With this power setting the engine can provide up to 65 % at the maximum propeller speed of 1975 RPM.
+  -5 Land at nearest suitable airfield
+> Otherwise:
+  -1 Power lever (good engine) | INCREASE up to MAX
+  -2 Circuit breakers | CHECK/RESET
+  > If engine OK: continue, land ASAP – end of checklist
+  -3 VOTER switch | SWAP between A and B
+  > If engine OK: continue, land ASAP – end of checklist
+  -4 VOTER switch | AUTO
+  > If engine OK: continue, land ASAP – end of checklist
+  -5 Fuel pumps (affected engine) | CHECK OFF
+  -6 Fuel selector (affected engine) | CROSSFEED
+  > If engine OK: continue – end of checklist
+  -7 Fuel selector (affected engine) | ON or CROSSFEED
+  -8 Alternate air | OPEN
+  > If engine OK: land as soon as practicable – end of checklist
+  > If engine still not OK: be prepared for ENGINE FAILURE IN FLIGHT, land ASAP
+  @eng-fail-flt Engine failure in flight`},
+{id:"restart",s:"E",g:"Engine",t:"Engine Restart",src:`
+! Reason for shutdown must be ascertained
+%restart
+- Power (affected engine) | IDLE
+- Fuel selector (affected engine) | ON
+- Alternate air | AS REQUIRED
+- Alternator (affected engine) | ON
+- Engine master (affected engine) | ON
+> For restart with starter motor:
+  -6 Starter | ENGAGE when prop stationary
+  -7 Circuit breakers | CHECK/RESET if necessary
+> If engine started:
+  -8 Power (affected engine) | MODERATE
+  -9 Engine instruments | check GREEN RANGE`},
+{id:"osc-rpm",s:"E",g:"Engine",t:"Oscillating RPM",src:`
+- Power lever | CHANGE SETTING
+> If no success: check G1000 for ECU FAIL caution
+  > If ECU FAIL caution indicated:
+    -2 VOTER switch | unaffected ECU
+    > If no success:
+      -3 VOTER switch | AUTO
+. Land at nearest suitable airfield`},
+{id:"rpm-over",s:"E",g:"Engine",t:"RPM Overspeed",src:`
+- Power setting | REDUCE
+> If no success: check G1000 for ECU FAIL caution
+  > If ECU FAIL caution indicated:
+    -2 VOTER switch | unaffected ECU
+    > If no success:
+      -3 VOTER switch | AUTO
+. Land at nearest suitable airfield
+! Be prepared for ENGINE FAILURE IN FLIGHT
+@eng-fail-flt Engine failure in flight`},
+{id:"tire",s:"E",g:"Landing gear",t:"Landing with Defective Main Gear Tire",src:`
+- ATC | INFORMED
+~ For landing:
+. Land on RWY side with "good" tire
+. Keep wing on "good" side low
+. Support directional control with brake`},
+{id:"brakes",s:"E",g:"Landing gear",t:"Landing with Defective Brakes",src:`
+> After touchdown (if necessary):
+  -1 Engine masters (2) | OFF
+  -2 Fuel selectors (2) | OFF
+  -3 Electric master | OFF`},
+{id:"gear-unsafe",s:"E",g:"Landing gear",t:"Landing Gear Unsafe Warning",src:`
+~ If ON for more than 20 seconds:
+- Airspeed | max 152 KIAS
+> In cold temperature:
+  -2 Airspeed | max 110 KIAS
+-3 Gear selector | RECYCLE
+> If landing gear extension unsuccessful:
+  @gear-manual Continue with MANUAL EXTENSION
+> If landing gear retraction unsuccessful:
+  . Consider flight with landing gear down`},
+{id:"gear-manual",s:"E",g:"Landing gear",t:"Manual Extension of Landing Gear",src:`
+- Airspeed | max 152 KIAS
+- Gear indicator lights | TEST
+- Electric master | CHECK ON
+- Bus voltage | CHECK NORMAL
+- Circuit breaker | CHECK
+- Gear selector | DOWN
+- Manual extension handle | PULL
+> If necessary:
+  -8 Airspeed | max 110 KIAS
+  . Apply moderate yawing
+-9 Gear indicator lights | CHECK 3 GREENS`},
+{id:"gear-up-ldg",s:"E",g:"Landing gear",t:"Landing Gear Up Landing",sub:"Landing gear completely retracted",src:`
+- Approach | NORMAL
+> If time/situation allows, just before touchdown:
+  -2 Power lever | IDLE
+  -3 Engine masters (2) | OFF
+  -4 Fuel pumps (2) | OFF
+  -5 Fuel selectors (2) | OFF
+~ Immediately after touchdown:
+-6 Electric master | OFF`},
+{id:"eng-fire-flt",s:"E",g:"Smoke and fire",t:"Engine Fire in Flight",src:`
+- Cabin heat & defrost | OFF
+- Canopy | UNLATCH if necessary
+! Max airspeed 117 KIAS
+- Shut down the engine according ENGINE SHUTDOWN procedure
+@eng-fail-flt Engine failure / shutdown in flight`},
+{id:"eng-fire-gnd",s:"E",g:"Smoke and fire",t:"Engine Fire on Ground / during T/O",sub:"See L/R ENG FIRE",src:`
+@eng-fire L/R ENG FIRE procedure`},
+{id:"elec-fire-gnd",s:"E",g:"Smoke and fire",t:"Electrical Fire on Ground",src:`
+- Mayday call | CONSIDER
+- Electric master | OFF
+- Power levers (2) | IDLE
+- Engine masters (2) | OFF
+- Fuel selectors (2) | OFF
+~ When engine and aircraft stopped:
+- Canopy | OPEN
+. Evacuate`},
+{id:"elec-fire-flt",s:"E",g:"Smoke and fire",t:"Electrical Fire in Flight",src:`
+- Emergency switch | ON
+- Mayday call | CONSIDER
+- Avionic master | OFF
+- Electric master | OFF
+- Cabin heat & defrost | OFF
+- Emergency windows | OPEN as necessary
+- Canopy | UNLATCH if necessary
+! Max airspeed 117 KIAS
+. Land at nearest suitable airfield`},
+{id:"smoke-10k",s:"E",g:"Smoke and fire",t:"Cabin Smoke above 10.000 ft",sub:"If oxygen system is installed",src:`
+- Oxygen | CHECK ON
+- Emergency descent | INITIATE
+~ When passing 10.000 ft:
+- Oxygen | OFF
+. Land at nearest suitable airfield
+@em-desc Emergency descent`},
+{id:"fire-10k",s:"E",g:"Smoke and fire",t:"Cabin Fire above 10.000 ft",sub:"If oxygen system is installed",src:`
+- Oxygen | PUSH OFF
+- Emergency descent | INITIATE
+. Land at nearest suitable airfield
+@em-desc Emergency descent`},
+{id:"oxy-loss",s:"E",g:"Smoke and fire",t:"Oxygen Pressure Loss above 10.000 ft",sub:"If oxygen system is installed",src:`
+- Oxygen | PUSH OFF
+- Oxygen pressure | CHECKED, note down
+- Emergency descent | INITIATE
+~ When passing 10.000 ft:
+- Oxygen pressure | CHECK AGAIN
+> If oxygen pressure constant: continue flight
+> If oxygen pressure dropped: land at nearest suitable airfield
+@em-desc Emergency descent`},
+{id:"em-desc",s:"E",g:"Other emergencies",t:"Emergency Descent",src:`
+- Flaps | UP
+- Landing gear | DOWN
+- Power levers | IDLE
+- Airspeed | AS REQUIRED`},
+{id:"icing",s:"E",g:"Other emergencies",t:"Unintentional Flight into Icing",sub:"Inadvertent icing encounter & excessive ice accumulation",src:`
+~ Unintentional flight into icing: leave icing area, continue with item 1
+- *De-ice system | HIGH + MAX
+- Pitot heat | ON
+- Cabin heat & defrost | ON
+- Alternate air | OPEN
+- *Windshield de-ice | USE AS APPROPRIATE
+- Emergency windows | OPEN as required
+> *When de-ice system does not work properly:
+  @ice-fail Continue with ICE PROTECTION FAILURE`},
+{id:"ice-fail",s:"E",g:"Other emergencies",t:"Ice Protection Failure",src:`
+- Airspeed | 118 to 156 KIAS until final
+- Flaps | limited to APP position
+- Approach with residual ice | min 90/93 KIAS
+- Landing distance | flaps LDG value + 20 %`},
+{id:"co",s:"E",g:"Other emergencies",t:"Suspicion of Carbon Monoxide",src:`
+- Cabin heat & defrost | OFF
+- Ventilation | OPEN
+- Emergency windows | OPEN
+- Airspeed | max 117 KIAS
+- Canopy | UNLATCH
+~ Push up and lock in cooling gap position`},
+{id:"elec-fail",s:"E",g:"Electrical system",t:"Complete Electrical Failure",src:`
+~ * Leave icing area
+- Circuit breakers | CHECK all IN
+> If no success:
+  -2 Emergency switch | ON
+  -3 Flood light, if necessary | ON
+  -4 Power | SET
+  ~ According power lever position and/or engine noise
+  -5 Flaps | VERIFY POSITION
+. Land at nearest suitable airfield
+! Landing gear may slowly extend
+@gear-manual For landing apply MANUAL EXTENSION OF LANDING GEAR`},
+
+/* ===================== ABNORMAL ===================== */
+{id:"fuel-low",s:"A",g:"G1000 Cautions",t:"L/R FUEL LOW",sub:"Main tank fuel qty low",src:`
+. Check fuel quantity
+. Avoid uncoordinated flight
+> If LH & RH quantities show remarkable difference:
+  . Expect loss of fuel on side with lower indication
+  . Check fuel pumps OFF
+  . Use X-feed: fuel selector to X-FEED on side with LOW FUEL indication`},
+{id:"aux-e",s:"A",g:"G1000 Cautions",t:"L/R AUX FUEL E",sub:"Auxiliary fuel tank empty",src:`
+. L/R auxiliary fuel pump | OFF`},
+{id:"ecu-gnd",s:"A",g:"G1000 Cautions",t:"L/R ECU A or B FAIL – On Ground",src:`
+- VOTER switch | check AUTO
+- Other ECU caution | check OFF
+~ Clearing procedure:
+- VOTER switch | set to failed ECU
+~ Wait 5 seconds
+- VOTER switch | AUTO
+> If ECU caution persists: terminate flight preparation`},
+{id:"ecu-flt",s:"A",g:"G1000 Cautions",t:"L/R ECU A or B FAIL – In Flight",src:`
+~ In case of ECU fail the system automatically switches to the other ECU
+- Alternate air | OPEN
+- Fuel pumps LH/RH | ON
+- Circuit breakers | CHECK/RESET if necessary
+- VOTER switch | check AUTO
+> If ECU caution persists, ECU caution clearing procedure may be used:
+  ! BUT: in case of negative 1-engine climb rate only if a suitable landing site is available within gliding distance. Be prepared for loss of engine power.
+  -5 Safe altitude | CHECK
+  -6 Airspeed | min 85 KIAS
+  -7 Flaps | check UP
+  -8 Landing gear | check UP
+  -9 Other ECU caution | check OFF
+  -10 VOTER switch | set to failed ECU
+  ~ Wait 5 seconds
+  -11 VOTER switch | AUTO
+  > If ECU caution persists:
+    . Land at nearest suitable airfield
+  > If additional engine problems are observed:
+    @eng-trouble Engine troubleshooting
+> L or R ECU A FAIL and ECU B FAIL simultaneously:
+  @eng-trouble Go to ENGINE TROUBLESHOOTING`},
+{id:"volts-low-c",s:"A",g:"G1000 Cautions",t:"L/R VOLTS LOW",sub:"Bus voltage too low",src:`
+~ Possible reasons: fault in the electrical power supply; alternators OFF
+@ind-volts Continue with VOLTS low`},
+{id:"altn-fail",s:"A",g:"G1000 Cautions",t:"L/R ALTN FAIL",sub:"Alternator failed",src:`
+> If in icing conditions:
+  . Leave icing area as soon as practicable
+. Alternator on affected side | OFF
+. Monitor bus voltage
+. Reduce electrical consumers
+> If both alternators failed:
+  @altn-both Both alternators failed`},
+{id:"altn-both",s:"A",g:"G1000 Cautions",t:"L + R ALTN FAIL",sub:"Both alternators failed",src:`
+~ Reduce all electrical equipment to a minimum:
+. Avionic master | OFF
+. LH/RH alternator | OFF
+. Transponder | STBY
+. Gear | DOWN
+> When down and locked:
+  . Manual gear extension handle | PULL
+. Stall/Pitot heat | OFF
+. All lights | OFF
+! Expect battery power to last for 30 minutes. Expect engine stoppage after this time.
+. Land ASAP`},
+{id:"stick",s:"A",g:"G1000 Cautions",t:"STICK LIMIT",sub:"Variable elevator stop system failed",src:`
+> 1 or 2 power levers set for MORE than 20 % load:
+  ! Elevator variable stop is INOP. Do not stall in any configuration!
+> 2 power levers set for LESS than 20 % load:
+  ~ Elevator variable stop always ACTIVE – reduced elevator capacity
+  . For approach min VREF 86 KIAS`},
+{id:"cool-lvl",s:"A",g:"G1000 Cautions",t:"L/R COOL LVL",sub:"Engine coolant level low",src:`
+. Monitor annunciations / engine instruments
+. Check coolant temperature
+@ind-cool-hi See COOLANT temperature (green range)`},
+{id:"pitot",s:"A",g:"G1000 Cautions",t:"PITOT / STALL HT FAIL or OFF",sub:"PITOT FAIL · PITOT HT OFF · STALL HT FAIL · STALL HT OFF",src:`
+. Check pitot heat ON, if in icing conditions
+~ PITOT: expect loss of airspeed indication
+~ STALL HT: expect loss of aural stall warning
+. Leave area with icing conditions
+@icing Unintentional flight into icing`},
+{id:"deice-lvl",s:"A",g:"G1000 Cautions",t:"DEICE LVL LO",sub:"De-icing fluid level low",src:`
+! Maximum duration of ice protection: NORMAL mode 30 min, HIGH mode 15 min`},
+{id:"deic-pres-lo",s:"A",g:"G1000 Cautions",t:"DEIC PRES LO",sub:"De-icing pressure low",src:`
+. DE-ICE | HIGH
+> If DEIC PRES LO light still ON:
+  . PUMP 1 / PUMP 2 | SELECT OTHER PUMP
+  ~ If necessary prime pump by activating windshield pump
+  > If DEIC PRES LO light still ON:
+    . ALTERNATE switch | ACTIVATE
+    > If DEIC PRES LO light still ON:
+      @ice-fail Go to ICE PROTECTION FAILURE
+> If DEIC PRES LO light OFF:
+  . Continue flight (de-icing fluid flow: 30 l/h)
+  . Monitor ice protection system operation
+  . Check de-icing fluid level periodically`},
+{id:"deic-pres-hi",s:"A",g:"G1000 Cautions",t:"DEIC PRES HI",sub:"De-icing pressure high",src:`
+~ Possible reduced system performance
+~ Filter cartridge to be replaced at next scheduled maintenance`},
+{id:"ind-cool-hi",s:"A",g:"Engine indications outside green range",t:"COOLANT Temperature High / Low",src:`
+= Coolant temperature high
+@eng-temp Refer to L/R ENG TEMP
+= Coolant temperature low
+~ During low power descent from high altitude coolant temperature may decrease. Consider increasing power.
+. Check G1000 for LOW COOLANT LVL caution light
+> If LOW COOLANT LVL caution light ON:
+  . Reduce power on affected engine
+  . Expect loss of coolant fluid
+  . Be prepared for an engine failure`},
+{id:"ind-oil-t",s:"A",g:"Engine indications outside green range",t:"OIL Temperature High / Low",src:`
+= Oil temperature high
+@oil-temp Refer to L/R OIL TEMP
+= Oil temperature low
+. Increase power
+. Reduce airspeed`},
+{id:"ind-oil-p",s:"A",g:"Engine indications outside green range",t:"OIL Pressure High / Low",src:`
+= Oil pressure high
+> On ground during warm-up with low oil temperature:
+  . Reduce power until oil press. green, continue warm-up at reduced power
+> During flight:
+  . Check oil temperature
+  . Check coolant temperature
+  > If temperatures within green range:
+    ~ Oil press. indication may be faulty; watch temperatures
+  > If temperatures outside of green range:
+    . Reduce power on affected engine
+    . Land at nearest suitable airfield, be prepared for engine failure
+= Oil pressure low
+@oil-pres Refer to L/R OIL PRES`},
+{id:"ind-fuel-t",s:"A",g:"Engine indications outside green range",t:"FUEL Temperature High / Low",src:`
+= Fuel temperature high
+@fuel-temp Refer to L/R FUEL TEMP
+= Fuel temperature low
+. Increase power on affected engine
+. Reduce airspeed
+> If not returning to green range:
+  . Be prepared for an engine failure; land at nearest suitable airfield`},
+{id:"ind-volts",s:"A",g:"Engine indications outside green range",t:"VOLTS Low",src:`
+> On ground:
+  . Check alternators ON
+  . Check circuit breakers
+  > If LOW VOLTS caution still indicated on the G1000:
+    . Discontinue operation; terminate flight preparation
+> In flight:
+  . Check alternators ON
+  . Check circuit breakers
+  . Switch off unnecessary electrical equipment
+  > If LOW VOLTS caution still indicated on the G1000:
+    @altn-fail Apply L/R ALTN FAIL caution procedure`},
+{id:"ind-rpm",s:"A",g:"Engine indications outside green range",t:"RPM High",src:`
+. Reduce power on affected engine
+. Keep RPM in green range with appropriate power lever setting
+> If problem not solved:
+  @rpm-over Refer to RPM OVERSPEED
+  . Land at nearest suitable airfield`},
+{id:"hyd",s:"A",g:"Other abnormal situations",t:"Hydraulic Pump Failure",sub:"Failure or continuous operation",src:`
+. Check gear indication lights
+. Prepare for manual landing gear extension
+@gear-manual Manual extension of landing gear`},
+{id:"aux-xfer",s:"A",g:"Other abnormal situations",t:"L/R AUX Fuel XFER FAIL",src:`
+. Both AUX PUMPS | OFF
+. Check fuel pumps OFF
+. Check fuel quantity
+. Use X-feed to keep main tank fuel unbalance within 1 USG
+. Switch remaining AUX PUMP ON
+. Use X-feed to keep main tank fuel unbalance within 1 USG
+. Amend flight plan to allow for reduced amount of available fuel`},
+];
+
+/* ---------- LIMITATIONS DATA ---------- */
+const LIM = {
+  "1900":{label:"MTOM 1900 kg",note:"Without increase of MTOM, MZFM, MLM",
+    stall:[["VS0 – Flaps LDG, gear down",62,62],["VS – Flaps APP, gear down",66,65],["VS – Clean, gear up",69,68]],
+    vmca:[[76,71],[73,68]], vr:[80,76,76,71], vx:["–","–",82,77], vy:[90,85],
+    vyse:"85", vyseIce:"88 (in ice up to 1900 kg)",
+    vref:[["Flaps UP","86","94"],["Flaps APP","84","90"],["Flaps LDG","84","prohib."]], vga:"90", vo:[["1700 kg",112],["1800 kg",119],["1900 kg",122]],
+    mass:[["Max. take-off mass","1900 kg"],["Max. zero fuel mass","1765 kg"],["Max. landing mass","1805 kg"],["Empty mass – min flight mass","1450 kg"]]},
+  "1999":{label:"MTOM 1999 kg",note:"With increased MTOM, MZFM, MLM",
+    stall:[["VS0 – Flaps LDG, gear down",64,64],["VS – Flaps APP, gear down",68,68],["VS – Clean, gear up",72,72]],
+    vmca:[[76,71],[73,68]], vr:[80,76,76,74], vx:["–","–",82,77], vy:[92,85],
+    vyse:"85", vyseIce:"90 (in ice above 1900 kg)",
+    vref:[["Flaps UP","92","97"],["Flaps APP","88","93"],["Flaps LDG","86","prohib."]], vga:"92", vo:[["1700 kg",112],["1800 kg",119],["1999 kg",122]],
+    mass:[["Max. take-off mass","1999 kg"],["Max. zero fuel mass","1835 kg"],["Max. landing mass","1999 kg (ice: 1900 kg)"],["Empty mass","1450 kg"]]}
+};
+const POWER = {temps:["-35","-20","-10","0","10","20","30","40","50"],
+  rows:[["0",99,99,99,99,99,97,96,93,91],["2000",99,99,99,99,99,97,96,93,"–"],["4000",99,99,99,99,99,97,96,93,"–"],["6000",99,99,99,99,99,97,96,93,"–"],["8000",99,99,98,98,98,96,95,92,"–"],["10000",98,97,97,95,94,92,89,"–","–"]]};
+
+/* ---------- PARSER ---------- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function parse(src){
+  const out=[]; let n=0; const condAt=[];
+  for(const raw of src.split("\n")){
+    if(!raw.trim()) continue;
+    const ind=(raw.match(/^ */)[0].length)>>1; const line=raw.trim();
+    condAt.length=Math.min(condAt.length,ind);
+    const inCond=condAt.some(Boolean);
+    const node={lvl:ind,cond:inCond};
+    let m;
+    if((m=line.match(/^-(\d+)?\s+(.*)$/))){ node.ty="i"; if(m[1]) n=+m[1]; else n++; node.no=n; body(node,m[2]); }
+    else if(line.startsWith(". ")){ node.ty="i"; body(node,line.slice(2)); }
+    else if(line.startsWith("> ")){ node.ty="c"; node.text=line.slice(2); condAt[ind]=true; }
+    else if(line.startsWith("~ ")){ node.ty="n"; node.text=line.slice(2); }
+    else if(line.startsWith("! ")){ node.ty="w"; node.text=line.slice(2); }
+    else if(line.startsWith("= ")){ node.ty="h"; node.text=line.slice(2); }
+    else if(line.startsWith("@")){ const sp=line.indexOf(" "); node.ty="l"; node.to=line.slice(1,sp); node.text=line.slice(sp+1); }
+    else if(line.startsWith("%")){ node.ty="t"; node.tab=line.slice(1); }
+    else { node.ty="n"; node.text=line; }
+    out.push(node);
+  }
+  return out;
+}
+function body(node,s){
+  let opt=""; const m=s.match(/^(\*\*|\*)\s*/); if(m){opt=m[1]; s=s.slice(m[0].length);}
+  const p=s.split(" | "); node.c=p[0]; node.r=p[1]||""; node.opt=opt;
+}
+CL.forEach(c=>{c.nodes=parse(c.src); c.req=c.nodes.map((n,i)=>n.ty==="i"&&!n.cond?i:-1).filter(i=>i>=0); c.all=c.nodes.map((n,i)=>n.ty==="i"?i:-1).filter(i=>i>=0);});
+const byId=Object.fromEntries(CL.map(c=>[c.id,c]));
+const SEC={N:"NORMAL",E:"EMERGENCY",A:"ABNORMAL",L:"LIMITATIONS"};
+const normalSeq=CL.filter(c=>c.s==="N").map(c=>c.id);
+
+/* ---------- STORAGE (optional) ---------- */
+const store={get(k,d){try{const v=localStorage.getItem("da42qrh:"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem("da42qrh:"+k,JSON.stringify(v))}catch(e){}}};
+const done={}; CL.forEach(c=>done[c.id]=new Set(store.get("d:"+c.id,[])));
+const saveDone=id=>store.set("d:"+id,[...done[id]]);
+
+/* ---------- STATE ---------- */
+const st={tab:store.get("tab","N"),open:null,q:"",lim:store.get("lim","1900"),armReset:false};
+const $=s=>document.querySelector(s);
+const idx=$("#idx"), view=$("#view"), main=$("#main");
+
+function progress(c){const r=c.req.length; if(!r) return null; const d=c.req.filter(i=>done[c.id].has(i)).length; return [d,r];}
+
+function renderIndex(){
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(!st.q&&b.dataset.t===st.tab)));
+  const q=st.q.trim().toLowerCase();
+  let list, html="";
+  if(q){
+    list=CL.filter(c=>(c.t+" "+(c.sub||"")+" "+c.src).toLowerCase().includes(q));
+    if("limitations limits vyse vmca vref vne vno vfe speed mass power check".includes(q)||/^v/.test(q)) html+=limBtn();
+    if(!list.length&&!html) html=`<p class="empty">Aucune checklist ne contient « ${esc(st.q)} ».</p>`;
+  } else if(st.tab==="L"){ html=limBtn(); list=[]; }
+  else list=CL.filter(c=>c.s===st.tab);
+  let g=null;
+  for(const c of list){
+    const gl=q?SEC[c.s]:c.g;
+    if(gl!==g){g=gl; html+=`<div class="grp">${esc(g)}</div>`;}
+    const p=progress(c); const pr=p?(p[0]===p[1]?`<span class="pr ok">✓ DONE</span>`:p[0]?`<span class="pr">${p[0]}/${p[1]}</span>`:""):"";
+    html+=`<button class="cl" data-id="${c.id}" aria-current="${st.open===c.id}"><span class="mk mk${c.s}"></span><span><div class="t">${esc(c.t)}</div>${c.sub?`<div class="s">${esc(c.sub)}</div>`:""}</span>${pr}</button>`;
+  }
+  idx.innerHTML=html;
+}
+function limBtn(){return `<div class="grp">Limitations</div><button class="cl" data-id="lim" aria-current="${st.open==="lim"}"><span class="mk mkL"></span><span><div class="t">Important Data and Limitations</div><div class="s">Speeds · masses · available power check</div></span></button>`;}
+
+function itemHTML(c,n,i,act){
+  const tag=n.opt==="**"?'<span class="tg">AUX</span>':n.opt==="*"?'<span class="tg">ICE</span>':"";
+  const cls=`it l${n.lvl}${done[c.id].has(i)?" done":""}${i===act?" act":""}`;
+  return `<div class="${cls}" data-i="${i}" role="checkbox" aria-checked="${done[c.id].has(i)}" tabindex="0"><span class="n${n.no?"":" dot"}">${n.no||""}</span><span class="c">${esc(n.c)}${tag}</span>${n.r?`<span class="d"></span><span class="r">${esc(n.r)}</span>`:`<span class="d" style="border:0"></span>`}<span class="k"></span></div>`;
+}
+function activeIdx(c){ for(const i of c.all){ if(!done[c.id].has(i)) { if(!c.nodes[i].cond || !c.req.length) return i; } } return -1; }
+
+function renderView(){
+  if(!st.open){view.innerHTML="";return;}
+  if(st.open==="lim") return renderLim();
+  const c=byId[st.open]; const act=activeIdx(c); const p=progress(c);
+  let h=`<div class="vh gut"><div class="vtop"><span class="sec sec${c.s}">${SEC[c.s]} · ${esc(c.g.toUpperCase())}</span></div><h1>${esc(c.t)}</h1>${c.sub?`<div class="vsub">${esc(c.sub)}</div>`:""}${p?`<div class="prog"><i style="width:${p[0]/p[1]*100}%"></i></div>`:""}</div><div class="items gut">`;
+  c.nodes.forEach((n,i)=>{
+    const ind=`style="--ind:${n.lvl*22}px"`;
+    if(n.ty==="i") h+=itemHTML(c,n,i,act);
+    else if(n.ty==="c") h+=`<div class="cond l${n.lvl}" ${ind}>${esc(n.text)}</div>`;
+    else if(n.ty==="n") h+=`<div class="note l${n.lvl}">${esc(n.text)}</div>`;
+    else if(n.ty==="w") h+=`<div class="caut l${n.lvl}">${esc(n.text)}</div>`;
+    else if(n.ty==="h") h+=`<div class="sub">${esc(n.text)}</div>`;
+    else if(n.ty==="l") h+=`<button class="lnk l${n.lvl}" data-go="${n.to}">→ ${esc(n.text)}</button>`;
+    else if(n.ty==="t") h+=restartTable();
+  });
+  const complete=p&&p[0]===p[1];
+  if(complete) h+=`<div class="done-banner">CHECKLIST COMPLETE</div>`;
+  h+=`</div>`;
+  const nextId=c.s==="N"?normalSeq[normalSeq.indexOf(c.id)+1]:null;
+  h+=`<div class="foot gut"><button class="fb warn" id="reset">${st.armReset?"CONFIRM":"RESET"}</button>`;
+  if(act>=0) h+=`<button class="fb main" id="next">✓ ${esc(c.nodes[act].c.toUpperCase()).slice(0,26)}</button>`;
+  else if(nextId) h+=`<button class="fb main fin" data-go="${nextId}">NEXT ▸ ${esc(byId[nextId].t.toUpperCase())}</button>`;
+  else h+=`<button class="fb main fin" id="toidx">INDEX</button>`;
+  h+=`</div>`;
+  view.innerHTML=h;
+}
+function restartTable(){
+  return `<div class="tblw"><table><thead><tr><th>ALTITUDE</th><th>WITH STARTER</th><th>WINDMILLING<br><span style="color:var(--red)">demo & training not approved</span></th></tr></thead><tbody>
+  <tr><td><b>15.000 – 10.000 ft PA</b></td><td>Immediate restart<br><b>Max 100 KIAS</b> or stationary prop, whichever is lower.<br>Do not engage starter when prop is windmilling.</td><td>Immediate restart<br><b>Min 125 KIAS<br>Max 145 KIAS</b></td></tr>
+  <tr><td><b>Up to 10.000 ft PA</b></td><td colspan="2">Max engine OFF time: OAT below −15 °C <b>2 min</b> · OAT −15 to −5 °C <b>5 min</b> · OAT above −5 °C <b>10 min</b></td></tr>
+  <tr><td></td><td><b>Max 100 KIAS</b> or stationary prop, whichever is lower.<br>Do not engage starter when prop is windmilling.</td><td><b>Min 125 KIAS<br>Max 145 KIAS</b></td></tr></tbody></table></div>`;
+}
+function renderLim(){
+  const L=LIM[st.lim]; const v=(a,cls="")=>`<td class="v ${cls}">${esc(a)}</td>`;
+  let h=`<div class="vh gut"><div class="vtop"><span class="sec secL">LIMITATIONS</span></div><h1>Important Data and Limitations</h1><div class="vsub">${esc(L.note)}</div>
+  <div class="seg" role="group"><button data-lim="1900" aria-pressed="${st.lim==="1900"}">1900 kg</button><button data-lim="1999" aria-pressed="${st.lim==="1999"}">1999 kg</button></div></div><div class="items lim gut">`;
+  h+=`<h2>STALLING SPEEDS · KIAS · ${esc(L.label)}</h2><div class="tblw"><table><thead><tr><th></th><th>NG</th><th>DASH-6</th></tr></thead><tbody>`+L.stall.map(r=>`<tr><td>${esc(r[0])}</td>${v(r[1],"c")}${v(r[2],"c")}</tr>`).join("")+`</tbody></table></div><p>In ice: + 4 to 6 KIAS.</p>`;
+  h+=`<h2>OPERATING SPEEDS · KIAS</h2><div class="tblw"><table><thead><tr><th></th><th>NG</th><th>DASH-6</th><th>NG<br>SHORT FIELD</th><th>DASH-6<br>SHORT FIELD</th></tr></thead><tbody>
+  <tr><td>VMCA – Flaps UP</td>${v(L.vmca[0][0],"c")}${v(L.vmca[0][1],"c")}<td></td><td></td></tr>
+  <tr><td>VMCA – Flaps APP</td>${v(L.vmca[1][0],"c")}${v(L.vmca[1][1],"c")}<td></td><td></td></tr>
+  <tr><td>Rotation speed</td>${L.vr.map(x=>v(x,"c")).join("")}</tr>
+  <tr><td>Best angle of climb VX</td>${L.vx.map(x=>v(x,"c")).join("")}</tr>
+  <tr><td>Best rate of climb VY</td><td class="v c" colspan="2">${L.vy[0]}</td><td class="v c" colspan="2">${L.vy[1]}</td></tr>
+  </tbody></table></div><p>Short field take-off with flaps APP.</p>`;
+  const rows=[["VYSE – best rate of climb 1 engine (blue line)",L.vyse],["VYSE – in ice",L.vyseIce],["Operating speed in ice","118 – 156"],["VFE – Flaps APP","133"],["VFE – Flaps LDG","113"],["VLOE – max LG extension","188"],["VLE – max LG extended","188"],["VLOR – max LG retraction","152"],["Min. go-around speed, Flaps UP",L.vga],["VNO – max cruising speed","151"],["VNE – never exceed speed","188"]];
+  h+=`<div class="tblw"><table><tbody>`+rows.map(r=>`<tr><td>${esc(r[0])}</td>${v(r[1],"c")}</tr>`).join("")+`</tbody></table></div>`;
+  h+=`<h2>APPROACH VREF · KIAS</h2><div class="tblw"><table><thead><tr><th></th><th>NORMAL</th><th>IN ICE</th></tr></thead><tbody>`+L.vref.map(r=>`<tr><td>${r[0]}</td>${v(r[1],"c")}${v(r[2],"c")}</tr>`).join("")+`</tbody></table></div>`;
+  h+=`<h2>MANOEUVRING SPEED VO · KIAS</h2><div class="tblw"><table><thead><tr>${L.vo.map(r=>`<th>UP TO ${r[0]}</th>`).join("")}</tr></thead><tbody><tr>${L.vo.map(r=>v(r[1],"c")).join("")}</tr></tbody></table></div>`;
+  h+=`<h2>MASS</h2><div class="tblw"><table><tbody>`+L.mass.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}</tr>`).join("")+`<tr><td>Max. baggage in NOSE</td>${v("30 kg")}</tr><tr><td>Max. baggage in COCKPIT</td>${v("45 kg")}</tr><tr><td>Max. baggage in rear EXTENSION</td>${v("18 kg")}</tr><tr><td>Max. COCKPIT + rear EXTENSION combined</td>${v("45 kg")}</tr></tbody></table></div><p>"Ice" = ice accumulation and/or icing conditions.</p>`;
+  h+=`<h2 id="power">AVAILABLE POWER CHECK</h2><p>10 sec power MAX, RPM 2250 – 2300, minimum load according to the table.</p><div class="tblw"><table><thead><tr><th>ALT FT \\ OAT °C</th>${POWER.temps.map(t=>`<th>${t}</th>`).join("")}</tr></thead><tbody>`+POWER.rows.map(r=>`<tr><td><b>${r[0]}</b></td>${r.slice(1).map(x=>v(x==="–"?"–":x+" %","c")).join("")}</tr>`).join("")+`</tbody></table></div>`;
+  h+=`<p class="disc">Transcription of the Diamond Flight Training checklist DA42 NG-VI NXI, edition 1.1 (15.05.2020). Recommended operator checklist, for reference only. Does not replace the Airplane Flight Manual or the approved paper checklist.</p></div>`;
+  view.innerHTML=h;
+}
+
+/* ---------- NAVIGATION ---------- */
+function open(id,push=true){
+  st.open=id; st.armReset=false; main.classList.add("reading"); $("#back").hidden=false;
+  if(id!=="lim"&&byId[id]){ st.tab=byId[id].s; store.set("tab",st.tab); } else if(id==="lim"){ st.tab="L"; }
+  renderIndex(); renderView(); window.scrollTo(0,0);
+  wake();
+}
+function closeView(){ st.open=null; main.classList.remove("reading"); $("#back").hidden=true; renderIndex(); renderView(); window.scrollTo(0,0); }
+
+function toggle(i){
+  const c=byId[st.open]; const s=done[c.id];
+  s.has(i)?s.delete(i):s.add(i); saveDone(c.id); st.armReset=false;
+  const y=window.scrollY; renderView(); renderIndex(); window.scrollTo(0,y); scrollActive();
+}
+function scrollActive(){
+  const a=view.querySelector(".it.act"); if(!a) return;
+  const r=a.getBoundingClientRect(); const hh=$("#hdr").getBoundingClientRect().bottom; const fb=window.innerHeight-130;
+  if(r.top<hh+10||r.bottom>fb) window.scrollBy({top:r.top-(hh+ (fb-hh)/3),behavior:"smooth"});
+}
+
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button,[data-i]"); if(!t) return;
+  if(t.dataset.t){ st.tab=t.dataset.t; st.q=""; $("#q").value=""; store.set("tab",st.tab); renderIndex(); if(window.innerWidth<900&&st.open) closeView(); return; }
+  if(t.dataset.id){ open(t.dataset.id); return; }
+  if(t.dataset.go){ open(t.dataset.go==="lim"?"lim":t.dataset.go); return; }
+  if(t.dataset.lim){ st.lim=t.dataset.lim; store.set("lim",st.lim); renderView(); return; }
+  if(t.dataset.i!=null){ toggle(+t.dataset.i); return; }
+  if(t.id==="next"){ const c=byId[st.open]; const a=activeIdx(c); if(a>=0) toggle(a); return; }
+  if(t.id==="reset"){ if(st.armReset){ done[st.open].clear(); saveDone(st.open); st.armReset=false; renderView(); renderIndex(); window.scrollTo(0,0);} else { st.armReset=true; t.textContent="CONFIRM"; setTimeout(()=>{ if(st.armReset){st.armReset=false; const b=$("#reset"); if(b) b.textContent="RESET";}},3000);} return; }
+  if(t.id==="toidx"||t.id==="back"){ closeView(); return; }
+  if(t.id==="theme"){ cycleTheme(); return; }
+});
+document.addEventListener("keydown",e=>{ const t=e.target.closest("[data-i]"); if(t&&(e.key===" "||e.key==="Enter")){ e.preventDefault(); toggle(+t.dataset.i);} });
+$("#q").addEventListener("input",e=>{ st.q=e.target.value; renderIndex(); if(st.q&&window.innerWidth<900&&st.open){ st.open=null; main.classList.remove("reading"); $("#back").hidden=true; renderView(); } });
+
+/* ---------- THEME ---------- */
+function applyTheme(){ const t=store.get("theme",null); if(t) document.documentElement.setAttribute("data-theme",t); const cur=t||document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"); $("#theme").textContent=cur==="dark"?"JOUR":"NUIT"; }
+function cycleTheme(){ const cur=document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"); store.set("theme",cur==="dark"?"light":"dark"); applyTheme(); }
+
+/* ---------- SCREEN WAKE LOCK (keeps the iPad awake while a checklist is open) ---------- */
+let wl=null; async function wake(){ try{ if("wakeLock" in navigator && !wl){ wl=await navigator.wakeLock.request("screen"); wl.addEventListener("release",()=>wl=null);} }catch(e){} }
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&st.open) wake(); });
+
+/* ---------- HEADER HEIGHT for sticky index pane ---------- */
+function hh(){ document.documentElement.style.setProperty("--hh",$("#hdr").offsetHeight+"px"); }
+window.addEventListener("resize",hh);
+
+applyTheme(); renderIndex(); renderView(); hh();
+if(window.innerWidth>=900) open("bef-start",false);
+</script>
+
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
+</body>
+</html>
