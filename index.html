@@ -111,7 +111,6 @@ h1{display:inline-block;font-size:21px;line-height:1.25;margin:0;text-transform:
 .it.act{background:var(--hl);box-shadow:inset 0 0 0 1px var(--orange)}
 .it .tg{font-size:10px;font-weight:700;border:1px solid var(--dim);color:var(--dim);border-radius:3px;padding:1px 4px;margin-left:6px;vertical-align:2px}
 .cond{display:flex;gap:8px;font-weight:700;font-size:16px;padding:12px 6px 4px;line-height:1.35;padding-left:calc(6px + var(--ind,0px))}
-.cond::before{content:"➜";color:var(--ink)}
 .note{color:var(--ink);font-size:15px;padding:6px 6px 6px 38px;line-height:1.4;text-align:left}
 .note.cen{text-align:center;padding-left:6px}
 .caut{border:2px solid var(--orange);border-radius:0;padding:9px 12px;margin:10px 6px;font-size:15px;line-height:1.4;font-weight:700;font-style:italic;text-align:center}
@@ -120,7 +119,8 @@ h1{display:inline-block;font-size:21px;line-height:1.25;margin:0;text-transform:
 .l1{margin-left:22px}.l2{margin-left:44px}.l3{margin-left:66px}
 .cond.l1,.cond.l2,.cond.l3{margin-left:0}
 .done-banner{margin:14px 6px 4px;padding:10px;border:2px solid var(--green);color:var(--green);text-align:center;font-weight:700;letter-spacing:.06em}
-.resetall{display:block;width:100%;max-width:860px;margin:22px auto 0;min-height:56px;border:2px dashed var(--red);color:var(--red);background:var(--paper);font-weight:700;font-size:14px;border-radius:4px}
+.resetall{display:block;width:100%;max-width:860px;margin:22px auto 0;min-height:56px;border:2px solid var(--rc);color:var(--rc);background:var(--paper);font-weight:700;font-size:14px;border-radius:4px}
+.resetall.N{--rc:var(--ink)}.resetall.E{--rc:var(--red)}.resetall.A{--rc:var(--orange)}
 .resetall.ok{border-style:solid;border-color:var(--green);color:var(--green)}
 .foot-note{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;font-style:italic;margin-top:18px;border-top:1px solid var(--rule);padding-top:8px}
 .foot-note .x{color:var(--red);font-weight:700}
@@ -155,6 +155,12 @@ td.plain,th.plain{background:var(--paper)}
 .seg button[aria-pressed="true"]{background:var(--navy);color:var(--paper)}
 .lim h2{font-size:14px;font-weight:700;text-transform:uppercase;margin:22px 0 4px;color:var(--ink)}
 .lim p{color:var(--dim);font-size:13.5px;margin:6px 0;max-width:68ch;line-height:1.45}
+.pager{display:flex;justify-content:center;gap:6px;max-width:860px;margin:0 auto 10px}
+.pager button{flex:1;min-height:42px;border:2px solid var(--magenta);border-radius:4px;background:var(--paper);color:var(--magenta);font-weight:700;font-size:12.5px;padding:6px 8px}
+.pager button[aria-selected="true"]{background:var(--magenta);color:#fff}
+.swipe{display:flex;align-items:flex-start;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain}
+.swipe::-webkit-scrollbar{display:none}
+.swipe>.slide{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;padding:0 2px}
 .src{font-size:12px;color:var(--dim);font-style:italic;text-align:center;margin-top:6px}
 @media (max-width:560px){.page{padding:10px 8px 14px}.page.E,.page.A{border-width:4px}.it{flex-wrap:wrap;padding-right:30px}.it .c{font-size:16px;flex:1}.it .d,.it .n2{display:none}.it .r{flex-basis:100%;text-align:left;max-width:none;padding-left:32px}.it .k{position:absolute;right:6px;top:10px}}
 @media (max-width:520px){.tab{font-size:10px;letter-spacing:0}}
@@ -164,7 +170,7 @@ td.plain,th.plain{background:var(--paper)}
 <header id="hdr">
   <div class="bar gut">
     <button id="back" class="ibtn" hidden>‹ INDEX</button>
-    <div><div class="brand">DA42 NG-VI NXI<b>QRH</b></div><div class="ed">Edition # 1.1 · 15.05.2020 · Does not replace the AFM · <b>app v5</b></div></div>
+    <div><div class="brand">DA42 NG-VI NXI<b>QRH</b></div><div class="ed">Edition # 1.1 · 15.05.2020 · Does not replace the AFM · <b>app v6</b></div></div>
     <div class="sp"></div>
     <button id="evac" class="ibtn evac" data-id="evac">EVAC</button>
     <button id="theme" class="ibtn" aria-label="Changer de thème">NUIT</button>
@@ -536,11 +542,12 @@ const CL = [
 . Tie-down ropes to mooring points | CONSIDER`},
 
 /* ===================== EMERGENCY ===================== */
-{id:"evac",s:"E",g:"Evacuation",t:"Evacuation",sub:"Conditions: Evacuation is needed",rh:"DA42-GFC700",ft:"QRH DA42-GFC700 V1.5 REV04 · p. 83",end:"END OF PROCEDURE",src:`
+{id:"evac",s:"E",g:"Evacuation",t:"Evacuation",sub:"Conditions: Evacuation is needed",x:true,ft:"Source: Astonfly QRH V1.5 REV04 · p. 83",end:"END OF PROCEDURE",src:`
 - Parking brake | SET
 - Engine masters (2) | OFF
 - ATC | ADVISED
 - Electrical master | OFF
+- Fuel pumps (2) | OFF
 - Fuel selector | OFF
 - Crew | EVACUATE`},
 {id:"eng-out-ldg",s:"E",g:"Engines out",t:"Engines Out Landing",sub:"2 engines out",src:`
@@ -1134,12 +1141,12 @@ function renderIndex(){
   const q=st.q.trim().toLowerCase();
   let list, html="";
   if(q){
-    list=CL.filter(c=>(c.t+" "+(c.sub||"")+" "+c.src).toLowerCase().includes(q));
+    list=CL.filter(c=>!c.x&&(c.t+" "+(c.sub||"")+" "+c.src).toLowerCase().includes(q));
     const lp=LIMPAGES.filter(p=>(p.t+" "+p.s+" limits limitations vyse vmca vref vne vno vfe vlo speed mass oil coolant gearbox fuel cg load rpm").toLowerCase().includes(q));
     if(lp.length) html+=limBtns(lp);
     if(!list.length&&!html) html=`<p class="empty">Aucune checklist ne contient « ${esc(st.q)} ».</p>`;
   } else if(st.tab==="L"){ html=limBtns(LIMPAGES); list=[]; }
-  else list=CL.filter(c=>c.s===st.tab);
+  else list=CL.filter(c=>c.s===st.tab&&!c.x);
   if(q){
     let g=null;
     for(const c of list){ if(SEC[c.s]!==g){ g=SEC[c.s]; html+=`<div class="grp">${esc(g)}</div>`; } html+=clBtn(c); }
@@ -1153,22 +1160,18 @@ function renderIndex(){
       if(isOpen) html+=`<div class="gbody">`+G.items.map(clBtn).join("")+`</div>`;
     }
   }
-  html+=`<button class="resetall" id="resetall">RESET ALL CHECKLISTS · Normal · Emergency · Abnormal</button>`;
+  if(st.q||st.tab!=="L") html+=`<button class="resetall ${st.q?"N":st.tab}" id="resetall">RESET ALL CHECKLISTS</button>`;
   idx.innerHTML=html;
 }
 function clBtn(c){
   const p=progress(c); const pr=p?(p[0]===p[1]?`<span class="pr ok">✓ DONE</span>`:p[0]?`<span class="pr">${p[0]}/${p[1]}</span>`:""):"";
   return `<button class="cl ${c.s}" data-id="${c.id}" aria-current="${st.open===c.id}"><span class="mk"></span><span><div class="t">${esc(c.t)}</div>${c.sub?`<div class="s">${esc(c.sub)}</div>`:""}</span>${pr}</button>`;
 }
-function limBtns(arr){
-  if(st.q) return `<div class="grp">Limitations</div>`+arr.map(limBtn).join("");
-  const key="L|Limitations"; const isOpen=openGroups.has(key);
-  return `<button class="gh L" data-g="${key}" aria-expanded="${isOpen}"><span class="chev">▶</span><span>Limitations</span><span class="gn">${arr.length} pages</span></button>`+(isOpen?`<div class="gbody">`+arr.map(limBtn).join("")+`</div>`:"");
-}
+function limBtns(arr){ return (st.q?`<div class="grp">Limitations</div>`:"")+arr.map(limBtn).join(""); }
 function limBtn(p){return `<button class="cl L" data-id="${p.id}" aria-current="${st.open===p.id}"><span class="mk"></span><span><div class="t">${esc(p.t)}</div><div class="s">${esc(p.s)}</div></span></button>`;}
 const openGroups=new Set(store.get("groups",[]));
 function toggleGroup(key){ openGroups.has(key)?openGroups.delete(key):openGroups.add(key); store.set("groups",[...openGroups]); renderIndex(); }
-function revealGroup(id){ const c=byId[id]; const key=c?c.s+"|"+c.g:"L|Limitations"; if(!openGroups.has(key)){ openGroups.add(key); store.set("groups",[...openGroups]); } }
+function revealGroup(id){ const c=byId[id]; if(c&&c.x) return; if(!c) return; const key=c?c.s+"|"+c.g:"L|Limitations"; if(!openGroups.has(key)){ openGroups.add(key); store.set("groups",[...openGroups]); } }
 
 function itemHTML(c,n,i,act){
   const tag=n.opt==="**"?'<span class="tg">AUX</span>':n.opt==="*"?'<span class="tg">ICE</span>':"";
@@ -1181,8 +1184,7 @@ const footNote=`<div class="foot-note"><span>15.05.2020 · Diamond Flight Traini
 
 function renderView(){
   if(!st.open){view.innerHTML="";return;}
-  if(st.open==="lim") return renderLim();
-  if(st.open==="afm") return renderAfm();
+  if(LIMPAGES.some(x=>x.id===st.open)) return renderLimSwipe();
   const c=byId[st.open]; const act=activeIdx(c); const p=progress(c);
   let h=`<article class="page ${c.s}"><div class="runhead"><span>${esc(c.rh||"DA42 NG-VI NXI")}</span><span>${RUN[c.s]}</span></div><div class="ttl"><h1>${esc(c.t)}</h1></div>${c.sub?`<div class="vsub">${esc(c.sub)}</div>`:""}${p?`<div class="prog"><i style="width:${p[0]/p[1]*100}%"></i></div>`:""}<div class="items">`;
   c.nodes.forEach((n,i)=>{
@@ -1191,7 +1193,7 @@ function renderView(){
     else if(n.ty==="n") h+=`<div class="note l${n.lvl}">${esc(n.text)}</div>`;
     else if(n.ty==="w") h+=`<div class="caut l${n.lvl}">${esc(n.text)}</div>`;
     else if(n.ty==="h") h+=`<div class="sub">${esc(n.text)}</div>`;
-    else if(n.ty==="l") h+=`<button class="lnk l${n.lvl}" data-go="${n.to}">➜ ${esc(n.text)}</button>`;
+    else if(n.ty==="l") h+=`<button class="lnk l${n.lvl}" data-go="${n.to}">${esc(n.text)}</button>`;
     else if(n.ty==="t") h+=restartTable();
   });
   if(p&&p[0]===p[1]) h+=`<div class="done-banner">${c.end||"END OF CHECKLIST"}</div>`;
@@ -1230,7 +1232,7 @@ function renderLim(){
   h+=`<div class="tblw"><table><thead><tr><th class="mass" colspan="2">MASS</th></tr></thead><tbody>`+L.mass.map(r=>`<tr><td class="pink">${r[0]}</td><td class="v pink">${r[1]}</td></tr>`).join("")+`<tr><td class="pink">Max. baggage in NOSE</td><td class="v pink">30 kg</td></tr><tr><td class="pink">Max. baggage in COCKPIT</td><td class="v pink">45 kg</td></tr><tr><td class="pink">Max. baggage in rear EXTENSION</td><td class="v pink">18 kg</td></tr><tr><td class="pink">COCKPIT + rear EXTENSION together</td><td class="v pink">45 kg</td></tr></tbody></table></div><p>"Ice": ice accumulation and/or icing conditions.</p>`;
   h+=`<h2>Available power check</h2><p>10 sec power MAX, RPM 2250 – 2300, minimum load according to the table below.</p><div class="tblw"><table><thead><tr><th class="plain">Altitude [ft]</th>${POWER.temps.map(t=>`<th class="plain">${t} °C</th>`).join("")}</tr></thead><tbody>`+POWER.rows.map(r=>`<tr><td class="plain"><b>${r[0]}</b></td>${r.slice(1).map(x=>`<td class="v plain">${x==="–"?"–":x+" %"}</td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
   h+=footNote+`</article>`;
-  view.innerHTML=h;
+  return h;
 }
 function renderAfm(){
   let h=limHead("Operating Limitations","DA 42 NG Airplane Flight Manual, Doc. 7.01.16-E, Rev. 5 (10-Jun-2021), Chapter 2");
@@ -1242,13 +1244,31 @@ function renderAfm(){
   h+=`<h2>Centre of gravity (2.8)</h2><div class="tblw"><table><thead><tr><th class="plain">Limit</th><th class="plain">Aft of datum</th><th class="plain">Mass</th></tr></thead><tbody>`+AFM_CG.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}${v(r[2])}</tr>`).join("")+`</tbody></table></div><p>Linear variation between the points.</p>`;
   h+=`<h2>Other limitations</h2><div class="tblw"><table><tbody>`+AFM_MISC.map(r=>`<tr><td>${r[0]}</td><td class="v" style="white-space:normal">${esc(r[1])}</td></tr>`).join("")+`</tbody></table></div>`;
   h+=`<p class="src">Always check against the AFM revision and supplements applicable to your aircraft (MÄM / OÄM status).</p>`+footNote+`</article>`;
-  view.innerHTML=h;
+  return h;
 }
+/* Limitations: all pages side by side, swipe left/right to change page. */
+const LIMRENDER={lim:renderLim,afm:renderAfm};
+function renderLimSwipe(){
+  const i=Math.max(0,LIMPAGES.findIndex(x=>x.id===st.open));
+  let h=`<div class="pager" role="tablist">`+LIMPAGES.map((x,k)=>`<button data-pg="${k}" aria-selected="${k===i}">${esc(x.t.replace(/ –.*/,""))}</button>`).join("")+`</div>`;
+  h+=`<div class="swipe" id="swipe">`+LIMPAGES.map(x=>`<div class="slide">${LIMRENDER[x.id]()}</div>`).join("")+`</div>`;
+  view.innerHTML=h;
+  const sw=$("#swipe");
+  sw.scrollLeft=i*sw.clientWidth; fitSwipe(i);
+  let tm=null;
+  sw.addEventListener("scroll",()=>{ clearTimeout(tm); tm=setTimeout(()=>{
+    const k=Math.round(sw.scrollLeft/sw.clientWidth); fitSwipe(k);
+    if(LIMPAGES[k]&&LIMPAGES[k].id!==st.open){ st.open=LIMPAGES[k].id; renderIndex(); document.querySelectorAll(".pager button").forEach((b,j)=>b.setAttribute("aria-selected",String(j===k))); }
+  },90); },{passive:true});
+}
+function fitSwipe(k){ const sw=$("#swipe"); if(!sw) return; const sl=sw.children[k]; if(sl) sw.style.height=sl.scrollHeight+"px"; }
+function goPage(k){ const sw=$("#swipe"); if(!sw) return; sw.style.height=""; sw.scrollTo({left:k*sw.clientWidth,behavior:"smooth"}); window.scrollTo({top:0,behavior:"smooth"}); }
 
 /* ---------- NAVIGATION ---------- */
 function open(id){
+  const k=LIMPAGES.findIndex(x=>x.id===id); if(k>=0&&$("#swipe")&&main.classList.contains("reading")){ goPage(k); return; }
   st.open=id; st.undo=null; main.classList.add("reading"); $("#back").hidden=false; revealGroup(id);
-  if(byId[id]){ st.tab=byId[id].s; store.set("tab",st.tab); } else { st.tab="L"; }
+  if(byId[id]){ if(!byId[id].x){ st.tab=byId[id].s; store.set("tab",st.tab); } } else { st.tab="L"; }
   renderIndex(); renderView(); window.scrollTo(0,0); wake();
 }
 function closeView(){ st.open=null; st.undo=null; main.classList.remove("reading"); $("#back").hidden=true; renderIndex(); renderView(); window.scrollTo(0,0); }
@@ -1268,7 +1288,7 @@ function doReset(){ const id=st.open; done[id].clear(); saveDone(id); renderView
 function doResetAll(){
   CL.forEach(c=>{ done[c.id].clear(); saveDone(c.id); });
   renderView(); renderIndex();
-  const b=$("#resetall"); if(b){ b.classList.add("ok"); b.textContent="✓ ALL CHECKLISTS RESET"; setTimeout(()=>{ const x=$("#resetall"); if(x){ x.classList.remove("ok"); x.textContent="RESET ALL CHECKLISTS · Normal · Emergency · Abnormal"; } },2000); }
+  const b=$("#resetall"); if(b){ b.classList.add("ok"); b.textContent="✓ ALL CHECKLISTS RESET"; setTimeout(()=>{ const x=$("#resetall"); if(x){ x.classList.remove("ok"); x.textContent="RESET ALL CHECKLISTS"; } },2000); }
 }
 
 document.addEventListener("click",e=>{
@@ -1277,7 +1297,8 @@ document.addEventListener("click",e=>{
   if(t.dataset.g){ toggleGroup(t.dataset.g); return; }
   if(t.dataset.id){ open(t.dataset.id); return; }
   if(t.dataset.go){ open(t.dataset.go); return; }
-  if(t.dataset.lim){ st.lim=t.dataset.lim; store.set("lim",st.lim); renderView(); return; }
+  if(t.dataset.lim){ st.lim=t.dataset.lim; store.set("lim",st.lim); st.open="lim"; renderView(); return; }
+  if(t.dataset.pg!=null){ goPage(+t.dataset.pg); return; }
   if(t.dataset.i!=null){ toggle(+t.dataset.i); return; }
   if(t.id==="next"){ const a=activeIdx(byId[st.open]); if(a>=0) toggle(a); return; }
   if(t.id==="reset"){ doReset(); return; }
@@ -1298,7 +1319,7 @@ let wl=null; async function wake(){ try{ if("wakeLock" in navigator && !wl){ wl=
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&st.open) wake(); });
 
 function hh(){ document.documentElement.style.setProperty("--hh",$("#hdr").offsetHeight+"px"); }
-window.addEventListener("resize",hh); window.addEventListener("orientationchange",()=>setTimeout(hh,300));
+window.addEventListener("resize",()=>{ hh(); const sw=$("#swipe"); if(sw){ const k=LIMPAGES.findIndex(x=>x.id===st.open); sw.scrollLeft=k*sw.clientWidth; fitSwipe(k);} }); window.addEventListener("orientationchange",()=>setTimeout(hh,300));
 try{ new ResizeObserver(hh).observe($("#hdr")); }catch(e){}
 
 applyTheme(); renderIndex(); renderView(); hh();
