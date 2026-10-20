@@ -161,6 +161,21 @@ td.plain,th.plain{background:var(--paper)}
 .swipe{display:flex;align-items:flex-start;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain}
 .swipe::-webkit-scrollbar{display:none}
 .swipe>.slide{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;padding:0 2px}
+.lim h2,.lim .ttl{scroll-margin-top:calc(var(--hh,170px) + 12px)}
+.page+.page{margin-top:16px}
+table.pt td,table.pt th{padding:6px 6px;font-size:13.5px}
+table.pt.narrow{min-width:0;max-width:560px}
+table.pt.wide{min-width:680px}
+table.pt.wide td,table.pt.wide th{padding:5px 3px;font-size:12.5px}
+table.pt td.alt{text-align:center;white-space:nowrap}
+.m{color:var(--dim);font-size:12px;font-weight:400}
+td.hx{background:repeating-linear-gradient(135deg,var(--paper) 0 6px,var(--rule) 6px 7px)!important}
+td.isa{background:var(--cyanfill)!important}
+td.lo{background:#9aa1a9!important;color:#fff}
+td.c{font-weight:700}
+.cond-line{color:var(--ink)!important;margin:4px 0 0!important}
+.lim .seg{justify-content:flex-start;margin:8px 0 2px}
+.lim .seg button{padding:8px 12px;font-size:12.5px}
 .src{font-size:12px;color:var(--dim);font-style:italic;text-align:center;margin-top:6px}
 @media (max-width:560px){.page{padding:10px 8px 14px}.page.E,.page.A{border-width:4px}.it{flex-wrap:wrap;padding-right:30px}.it .c{font-size:16px;flex:1}.it .d,.it .n2{display:none}.it .r{flex-basis:100%;text-align:left;max-width:none;padding-left:32px}.it .k{position:absolute;right:6px;top:10px}}
 @media (max-width:520px){.tab{font-size:10px;letter-spacing:0}}
@@ -170,7 +185,7 @@ td.plain,th.plain{background:var(--paper)}
 <header id="hdr">
   <div class="bar gut">
     <button id="back" class="ibtn" hidden>‹ INDEX</button>
-    <div><div class="brand">DA42 NG-VI NXI<b>QRH</b></div><div class="ed">Edition # 1.1 · 15.05.2020 · Does not replace the AFM · <b>app v6</b></div></div>
+    <div><div class="brand">DA42 NG-VI NXI<b>QRH</b></div><div class="ed">Edition # 1.1 · 15.05.2020 · Does not replace the AFM · <b>app v8</b></div></div>
     <div class="sp"></div>
     <button id="evac" class="ibtn evac" data-id="evac">EVAC</button>
     <button id="theme" class="ibtn" aria-label="Changer de thème">NUIT</button>
@@ -470,7 +485,7 @@ const CL = [
 . Approach sector | CLEAR
 . Runway | IDENTIFIED
 . Available power check | PERFORMED
-@lim Available power check table (Limits)`},
+@s-power Available power check table (Limits)`},
 {id:"aft-to",s:"N",g:"Flight",t:"After Take-off Procedure",src:`
 . Brakes | APPLY
 . Gear | UP
@@ -1134,6 +1149,10 @@ const idx=$("#idx"), view=$("#view"), main=$("#main");
 let undoTimer=null;
 
 function progress(c){const r=c.req.length; if(!r) return null; const d=c.req.filter(i=>done[c.id].has(i)).length; return [d,r];}
+const LIMSEC=[
+  {page:"Important Data and Limitations",pid:"p-lim",items:[["s-stall","Stalling speeds","vs vs0 stall"],["s-ops","Operating speeds","vmca vr vx vy vyse vfe vle vlo vref vno vne go-around ice"],["s-vo","Manoeuvring speed VO","vo va"],["s-mass","Mass","mtom mzfm mlm baggage weight"],["s-power","Available power check","load rpm power check"]]},
+  {page:"AFM Chapter 2 – Operating Limitations",pid:"p-afm",items:[["s-mark","Engine instrument markings","oil coolant gearbox fuel temp volt amp green red yellow"],["s-eng","Power plant limitations","engine rpm oil pressure overspeed"],["s-asi","Airspeed indicator markings","white green yellow arc blue red radial"],["s-fuel","Fuel","tank usable aux main capacity"],["s-cg","Centre of gravity","cg centre center datum"],["s-other","Other limitations","altitude restart load factor crew jet a-1 fuels"]]},
+  {page:"AFM Chapter 5 – Performance",pid:"p-perf",items:[["s-ias","Airspeed calibration","kias kcas calibration"],["s-ff","Fuel flow","fuel flow consumption gal"],["s-stallb","Stalling speeds vs bank","stall bank"],["s-xwind","Crosswind","wind crosswind"],["s-to","Take-off distance","take-off takeoff decollage distance ground roll short field"],["s-aeo","Climb – all engines","climb roc gradient montee"],["s-oei","Climb – one engine inop.","oei n-1 single engine climb vyse"],["s-tfd","Time, fuel & distance to climb","time fuel distance climb"],["s-cruise","Cruise performance","cruise croisiere tas fuel flow"],["s-ldg","Landing distance","landing atterrissage distance"],["s-ga","Go-around climb","go-around remise des gaz"]]}];
 const LIMPAGES=[{id:"lim",t:"Important Data and Limitations",s:"Checklist p. 10–11 · speeds, masses, power check"},{id:"afm",t:"AFM Chapter 2 – Operating Limitations",s:"Engine limits, instrument markings, fuel, CG, load factors"}];
 
 function renderIndex(){
@@ -1143,9 +1162,9 @@ function renderIndex(){
   if(q){
     list=CL.filter(c=>!c.x&&(c.t+" "+(c.sub||"")+" "+c.src).toLowerCase().includes(q));
     const lp=LIMPAGES.filter(p=>(p.t+" "+p.s+" limits limitations vyse vmca vref vne vno vfe vlo speed mass oil coolant gearbox fuel cg load rpm").toLowerCase().includes(q));
-    if(lp.length) html+=limBtns(lp);
+    html+=limBtns();
     if(!list.length&&!html) html=`<p class="empty">Aucune checklist ne contient « ${esc(st.q)} ».</p>`;
-  } else if(st.tab==="L"){ html=limBtns(LIMPAGES); list=[]; }
+  } else if(st.tab==="L"){ html=limBtns(); list=[]; }
   else list=CL.filter(c=>c.s===st.tab&&!c.x);
   if(q){
     let g=null;
@@ -1156,7 +1175,7 @@ function renderIndex(){
       const key=st.tab+"|"+G.name; const isOpen=openGroups.has(key);
       const withP=G.items.filter(c=>progress(c)); const doneN=withP.filter(c=>{const p=progress(c);return p[0]===p[1];}).length;
       const gn=withP.length&&doneN===withP.length?`<span class="gn ok">✓ ${doneN}/${withP.length}</span>`:`<span class="gn">${doneN?doneN+"/"+withP.length+" · ":""}${G.items.length} checklist${G.items.length>1?"s":""}</span>`;
-      html+=`<button class="gh ${st.tab}" data-g="${esc(key)}" aria-expanded="${isOpen}"><span class="chev">▶</span><span>${esc(G.name)}</span>${gn}</button>`;
+      html+=`<button class="gh ${st.tab}" data-g="${esc(key)}" aria-expanded="${isOpen}"><span>${esc(G.name)}</span>${gn}</button>`;
       if(isOpen) html+=`<div class="gbody">`+G.items.map(clBtn).join("")+`</div>`;
     }
   }
@@ -1167,7 +1186,15 @@ function clBtn(c){
   const p=progress(c); const pr=p?(p[0]===p[1]?`<span class="pr ok">✓ DONE</span>`:p[0]?`<span class="pr">${p[0]}/${p[1]}</span>`:""):"";
   return `<button class="cl ${c.s}" data-id="${c.id}" aria-current="${st.open===c.id}"><span class="mk"></span><span><div class="t">${esc(c.t)}</div>${c.sub?`<div class="s">${esc(c.sub)}</div>`:""}</span>${pr}</button>`;
 }
-function limBtns(arr){ return (st.q?`<div class="grp">Limitations</div>`:"")+arr.map(limBtn).join(""); }
+function limBtns(){
+  const q=st.q.trim().toLowerCase(); let h="";
+  for(const P of LIMSEC){
+    const items=q?P.items.filter(it=>(it[1]+" "+it[2]+" limits limitations").toLowerCase().includes(q)):P.items;
+    if(!items.length) continue;
+    h+=`<div class="grp">${esc(P.page)}</div>`+items.map(it=>`<button class="cl L" data-sec="${it[0]}" aria-current="${st.open==="lim"&&st.sec===it[0]}"><span class="mk"></span><span><div class="t">${esc(it[1])}</div></span></button>`).join("");
+  }
+  return h;
+}
 function limBtn(p){return `<button class="cl L" data-id="${p.id}" aria-current="${st.open===p.id}"><span class="mk"></span><span><div class="t">${esc(p.t)}</div><div class="s">${esc(p.s)}</div></span></button>`;}
 const openGroups=new Set(store.get("groups",[]));
 function toggleGroup(key){ openGroups.has(key)?openGroups.delete(key):openGroups.add(key); store.set("groups",[...openGroups]); renderIndex(); }
@@ -1184,7 +1211,7 @@ const footNote=`<div class="foot-note"><span>15.05.2020 · Diamond Flight Traini
 
 function renderView(){
   if(!st.open){view.innerHTML="";return;}
-  if(LIMPAGES.some(x=>x.id===st.open)) return renderLimSwipe();
+  if(st.open==="lim"||st.open==="afm"){ view.innerHTML=renderLim()+renderAfm()+renderPerf(); return; }
   const c=byId[st.open]; const act=activeIdx(c); const p=progress(c);
   let h=`<article class="page ${c.s}"><div class="runhead"><span>${esc(c.rh||"DA42 NG-VI NXI")}</span><span>${RUN[c.s]}</span></div><div class="ttl"><h1>${esc(c.t)}</h1></div>${c.sub?`<div class="vsub">${esc(c.sub)}</div>`:""}${p?`<div class="prog"><i style="width:${p[0]/p[1]*100}%"></i></div>`:""}<div class="items">`;
   c.nodes.forEach((n,i)=>{
@@ -1214,13 +1241,13 @@ function restartTable(){
   <tr><td class="plain"><b><i>Max 100 KIAS</i></b> or stationary prop, whichever is lower.<br>Do not engage starter when prop is windmilling.</td><td class="plain"><b><i>Min 125 KIAS<br>Max 145 KIAS</i></b></td></tr></tbody></table></div>`;
 }
 const v=(a,cls="")=>`<td class="v ${cls}">${esc(a)}</td>`;
-function limHead(title,sub){return `<article class="page L lim"><div class="runhead"><span>DA42 NG</span><span>${RUN.L}</span></div><div class="ttl"><h1>${esc(title)}</h1></div>${sub?`<div class="vsub">${sub}</div>`:""}`;}
+function limHead(title,sub,id){return `<article class="page L lim"${id?` id="${id}"`:""}><div class="runhead"><span>DA42 NG</span><span>${RUN.L}</span></div><div class="ttl"><h1>${esc(title)}</h1></div>${sub?`<div class="vsub">${sub}</div>`:""}`;}
 function renderLim(){
   const L=LIM[st.lim];
-  let h=limHead("Important Data and Limitations",`All masses and speeds are for ACFT <span class="r1">${st.lim==="1900"?"without":"with"}</span> increase of MTOM, MZFM, MLM`)+
+  let h=limHead("Important Data and Limitations",`All masses and speeds are for ACFT <span class="r1">${st.lim==="1900"?"without":"with"}</span> increase of MTOM, MZFM, MLM`,"p-lim")+
   `<div class="seg"><div role="group"><button data-lim="1900" aria-pressed="${st.lim==="1900"}">MTOM 1900 kg</button><button data-lim="1999" aria-pressed="${st.lim==="1999"}">MTOM 1999 kg</button></div></div>`;
-  h+=`<h2>Stalling speeds KIAS for ${esc(L.label)}</h2><div class="tblw"><table><thead><tr><th class="plain"></th><th class="plain">"NG"</th><th class="plain d6">"Dash-6"</th></tr></thead><tbody>`+L.stall.map(r=>`<tr><td>${esc(r[0])}</td>${v(r[1])}${v(r[2])}</tr>`).join("")+`<tr><td colspan="3" style="text-align:center">In ice: + 4–6 KIAS</td></tr></tbody></table></div>`;
-  h+=`<h2>Operating speeds KIAS for ${esc(L.label)}</h2><div class="tblw"><table><thead><tr><th class="plain"></th><th class="plain">"NG"</th><th class="plain d6">"Dash-6"</th><th class="plain sf">"NG" short field</th><th class="plain d6 sf">"Dash-6" short field</th></tr></thead><tbody>
+  h+=`<h2 id="s-stall">Stalling speeds KIAS for ${esc(L.label)}</h2><div class="tblw"><table><thead><tr><th class="plain"></th><th class="plain">"NG"</th><th class="plain d6">"Dash-6"</th></tr></thead><tbody>`+L.stall.map(r=>`<tr><td>${esc(r[0])}</td>${v(r[1])}${v(r[2])}</tr>`).join("")+`<tr><td colspan="3" style="text-align:center">In ice: + 4–6 KIAS</td></tr></tbody></table></div>`;
+  h+=`<h2 id="s-ops">Operating speeds KIAS for ${esc(L.label)}</h2><div class="tblw"><table><thead><tr><th class="plain"></th><th class="plain">"NG"</th><th class="plain d6">"Dash-6"</th><th class="plain sf">"NG" short field</th><th class="plain d6 sf">"Dash-6" short field</th></tr></thead><tbody>
   <tr><td>Min. control speed (VMCA) – Flaps UP</td>${v(L.vmca[0][0])}${v(L.vmca[0][1],"d6")}<td class="plain" colspan="2" rowspan="2" style="text-align:center"><b>Short field TKOF<br>with flaps APP</b></td></tr>
   <tr><td>Min. control speed (VMCA) – Flaps APP</td>${v(L.vmca[1][0])}${v(L.vmca[1][1],"d6")}</tr>
   <tr><td>Rotation speed</td>${v(L.vr[0])}${v(L.vr[1],"d6")}${v(L.vr[2],"sf")}${v(L.vr[3],"d6 sf")}</tr>
@@ -1228,45 +1255,133 @@ function renderLim(){
   <tr><td>Best rate of climb (VY)</td><td class="v" colspan="2">${L.vy[0]}</td><td class="v sf" colspan="2">${L.vy[1]}</td></tr></tbody></table></div>`;
   const rows=[["Best rate of climb 1-eng. (VYSE) – blue line",L.vyse],["VYSE – "+L.vyseIce.replace(/^\d+ \(|\)$/g,""),L.vyseIce.split(" ")[0]],["Operating speed in ice","118 – 156"],["Max. flap speed (VFE) Flaps APP","133"],["Max. flap speed (VFE) Flaps LDG","113"],["Max. LG extension (VLOE)","188"],["Max. LG extended (VLE)","188"],["Max. LG retraction (VLOR)","152"]];
   h+=`<div class="tblw"><table><tbody>`+rows.map(r=>`<tr><td>${esc(r[0])}</td>${v(r[1])}</tr>`).join("")+L.vref.map(r=>`<tr><td>Approach VREF ${r[0]}</td><td class="v">${r[1]} &nbsp; <i>in ice: ${r[2]}</i></td></tr>`).join("")+`<tr><td>Min. go-around speed Flaps UP</td>${v(L.vga)}</tr><tr><td>Max. cruising speed (VNO)</td>${v("151")}</tr><tr><td>Never exceed speed (VNE)</td>${v("188")}</tr></tbody></table></div>`;
-  h+=`<h2>Manoeuvring speed (VO)</h2><div class="tblw"><table><thead><tr>${L.vo.map(r=>`<th class="plain">up to ${r[0]}</th>`).join("")}</tr></thead><tbody><tr>${L.vo.map(r=>v(r[1])).join("")}</tr></tbody></table></div>`;
-  h+=`<div class="tblw"><table><thead><tr><th class="mass" colspan="2">MASS</th></tr></thead><tbody>`+L.mass.map(r=>`<tr><td class="pink">${r[0]}</td><td class="v pink">${r[1]}</td></tr>`).join("")+`<tr><td class="pink">Max. baggage in NOSE</td><td class="v pink">30 kg</td></tr><tr><td class="pink">Max. baggage in COCKPIT</td><td class="v pink">45 kg</td></tr><tr><td class="pink">Max. baggage in rear EXTENSION</td><td class="v pink">18 kg</td></tr><tr><td class="pink">COCKPIT + rear EXTENSION together</td><td class="v pink">45 kg</td></tr></tbody></table></div><p>"Ice": ice accumulation and/or icing conditions.</p>`;
-  h+=`<h2>Available power check</h2><p>10 sec power MAX, RPM 2250 – 2300, minimum load according to the table below.</p><div class="tblw"><table><thead><tr><th class="plain">Altitude [ft]</th>${POWER.temps.map(t=>`<th class="plain">${t} °C</th>`).join("")}</tr></thead><tbody>`+POWER.rows.map(r=>`<tr><td class="plain"><b>${r[0]}</b></td>${r.slice(1).map(x=>`<td class="v plain">${x==="–"?"–":x+" %"}</td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
+  h+=`<h2 id="s-vo">Manoeuvring speed (VO)</h2><div class="tblw"><table><thead><tr>${L.vo.map(r=>`<th class="plain">up to ${r[0]}</th>`).join("")}</tr></thead><tbody><tr>${L.vo.map(r=>v(r[1])).join("")}</tr></tbody></table></div>`;
+  h+=`<h2 id="s-mass">Mass</h2><div class="tblw"><table><thead><tr><th class="mass" colspan="2">MASS</th></tr></thead><tbody>`+L.mass.map(r=>`<tr><td class="pink">${r[0]}</td><td class="v pink">${r[1]}</td></tr>`).join("")+`<tr><td class="pink">Max. baggage in NOSE</td><td class="v pink">30 kg</td></tr><tr><td class="pink">Max. baggage in COCKPIT</td><td class="v pink">45 kg</td></tr><tr><td class="pink">Max. baggage in rear EXTENSION</td><td class="v pink">18 kg</td></tr><tr><td class="pink">COCKPIT + rear EXTENSION together</td><td class="v pink">45 kg</td></tr></tbody></table></div><p>"Ice": ice accumulation and/or icing conditions.</p>`;
+  h+=`<h2 id="s-power">Available power check</h2><p>10 sec power MAX, RPM 2250 – 2300, minimum load according to the table below.</p><div class="tblw"><table><thead><tr><th class="plain">Altitude [ft]</th>${POWER.temps.map(t=>`<th class="plain">${t} °C</th>`).join("")}</tr></thead><tbody>`+POWER.rows.map(r=>`<tr><td class="plain"><b>${r[0]}</b></td>${r.slice(1).map(x=>`<td class="v plain">${x==="–"?"–":x+" %"}</td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
   h+=footNote+`</article>`;
   return h;
 }
 function renderAfm(){
-  let h=limHead("Operating Limitations","DA 42 NG Airplane Flight Manual, Doc. 7.01.16-E, Rev. 5 (10-Jun-2021), Chapter 2");
-  h+=`<h2>Engine instrument markings (2.5)</h2><div class="tblw"><table><thead><tr><th class="plain">Indication</th><th class="plain r1">Red<br>low</th><th class="plain y1">Yellow</th><th class="plain g1">Green<br>normal</th><th class="plain y1">Yellow</th><th class="plain r1">Red<br>high</th></tr></thead><tbody>`+
+  let h=limHead("Operating Limitations","DA 42 NG Airplane Flight Manual, Doc. 7.01.16-E, Rev. 5 (10-Jun-2021), Chapter 2","p-afm");
+  h+=`<h2 id="s-mark">Engine instrument markings (2.5)</h2><div class="tblw"><table><thead><tr><th class="plain">Indication</th><th class="plain r1">Red<br>low</th><th class="plain y1">Yellow</th><th class="plain g1">Green<br>normal</th><th class="plain y1">Yellow</th><th class="plain r1">Red<br>high</th></tr></thead><tbody>`+
     AFM_MARK.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}${v(r[2])}${v(r[3])}${v(r[4])}${v(r[5])}</tr>`).join("")+`</tbody></table></div><p>* Fuel temp: G1000 software P/N 010-00670-12 or later. Earlier software: yellow −30 to −20 °C, green −20 to 55 °C.</p>`;
-  h+=`<h2>Power plant limitations (2.4)</h2><div class="tblw"><table><tbody>`+AFM_ENG.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}</tr>`).join("")+`</tbody></table></div>`;
-  h+=`<h2>Airspeed indicator markings (2.3)</h2><div class="tblw"><table><tbody><tr><td>White arc – flaps fully extended</td>${v("62 – 113 (64 – 113 MÄM 42-678)")}</tr><tr><td>Green arc – normal operating range</td>${v("68 – 151 (72 – 151 MÄM 42-678)")}</tr><tr><td>Yellow arc – caution, smooth air only</td>${v("151 – 188")}</tr><tr><td>Blue radial – VYSE</td>${v("85")}</tr><tr><td>Red radial – VMCA</td>${v("71")}</tr><tr><td>Red radial – VNE</td>${v("188")}</tr></tbody></table></div>`;
-  h+=`<h2>Fuel (2.14)</h2><div class="tblw"><table><thead><tr><th class="plain"></th><th class="plain">Total capacity</th><th class="plain">Usable</th></tr></thead><tbody>`+AFM_FUEL.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}${v(r[2])}</tr>`).join("")+`</tbody></table></div>`;
-  h+=`<h2>Centre of gravity (2.8)</h2><div class="tblw"><table><thead><tr><th class="plain">Limit</th><th class="plain">Aft of datum</th><th class="plain">Mass</th></tr></thead><tbody>`+AFM_CG.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}${v(r[2])}</tr>`).join("")+`</tbody></table></div><p>Linear variation between the points.</p>`;
-  h+=`<h2>Other limitations</h2><div class="tblw"><table><tbody>`+AFM_MISC.map(r=>`<tr><td>${r[0]}</td><td class="v" style="white-space:normal">${esc(r[1])}</td></tr>`).join("")+`</tbody></table></div>`;
+  h+=`<h2 id="s-eng">Power plant limitations (2.4)</h2><div class="tblw"><table><tbody>`+AFM_ENG.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}</tr>`).join("")+`</tbody></table></div>`;
+  h+=`<h2 id="s-asi">Airspeed indicator markings (2.3)</h2><div class="tblw"><table><tbody><tr><td>White arc – flaps fully extended</td>${v("62 – 113 (64 – 113 MÄM 42-678)")}</tr><tr><td>Green arc – normal operating range</td>${v("68 – 151 (72 – 151 MÄM 42-678)")}</tr><tr><td>Yellow arc – caution, smooth air only</td>${v("151 – 188")}</tr><tr><td>Blue radial – VYSE</td>${v("85")}</tr><tr><td>Red radial – VMCA</td>${v("71")}</tr><tr><td>Red radial – VNE</td>${v("188")}</tr></tbody></table></div>`;
+  h+=`<h2 id="s-fuel">Fuel (2.14)</h2><div class="tblw"><table><thead><tr><th class="plain"></th><th class="plain">Total capacity</th><th class="plain">Usable</th></tr></thead><tbody>`+AFM_FUEL.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}${v(r[2])}</tr>`).join("")+`</tbody></table></div>`;
+  h+=`<h2 id="s-cg">Centre of gravity (2.8)</h2><div class="tblw"><table><thead><tr><th class="plain">Limit</th><th class="plain">Aft of datum</th><th class="plain">Mass</th></tr></thead><tbody>`+AFM_CG.map(r=>`<tr><td>${r[0]}</td>${v(r[1])}${v(r[2])}</tr>`).join("")+`</tbody></table></div><p>Linear variation between the points.</p>`;
+  h+=`<h2 id="s-other">Other limitations</h2><div class="tblw"><table><tbody>`+AFM_MISC.map(r=>`<tr><td>${r[0]}</td><td class="v" style="white-space:normal">${esc(r[1])}</td></tr>`).join("")+`</tbody></table></div>`;
   h+=`<p class="src">Always check against the AFM revision and supplements applicable to your aircraft (MÄM / OÄM status).</p>`+footNote+`</article>`;
   return h;
 }
-/* Limitations: all pages side by side, swipe left/right to change page. */
-const LIMRENDER={lim:renderLim,afm:renderAfm};
-function renderLimSwipe(){
-  const i=Math.max(0,LIMPAGES.findIndex(x=>x.id===st.open));
-  let h=`<div class="pager" role="tablist">`+LIMPAGES.map((x,k)=>`<button data-pg="${k}" aria-selected="${k===i}">${esc(x.t.replace(/ –.*/,""))}</button>`).join("")+`</div>`;
-  h+=`<div class="swipe" id="swipe">`+LIMPAGES.map(x=>`<div class="slide">${LIMRENDER[x.id]()}</div>`).join("")+`</div>`;
-  view.innerHTML=h;
-  const sw=$("#swipe");
-  sw.scrollLeft=i*sw.clientWidth; fitSwipe(i);
-  let tm=null;
-  sw.addEventListener("scroll",()=>{ clearTimeout(tm); tm=setTimeout(()=>{
-    const k=Math.round(sw.scrollLeft/sw.clientWidth); fitSwipe(k);
-    if(LIMPAGES[k]&&LIMPAGES[k].id!==st.open){ st.open=LIMPAGES[k].id; renderIndex(); document.querySelectorAll(".pager button").forEach((b,j)=>b.setAttribute("aria-selected",String(j===k))); }
-  },90); },{passive:true});
+
+/* ---------- AFM CHAPTER 5 PERFORMANCE (DA 42 NG AFM Doc. 7.01.16-E Rev. 5, 10-Jun-2021) ---------- */
+const PERF={"to_normal":{"1999":[["SL",[400,420,440,470,560,680],424,[730,760,790,870,1050,1330],776],["1000",[420,440,470,510,610,730],444,[760,800,840,930,1150,1450],804],["2000",[440,460,500,540,660,790],462,[800,840,890,1000,1260,1570],836],["3000",[460,490,520,590,710,860],485,[840,880,940,1080,1360,1710],869],["4000",[490,520,560,640,780,930],505,[880,920,1000,1170,1490,1850],906],["5000",[520,550,600,690,840,null],531,[920,980,1070,1280,1620,null],944],["6000",[550,580,640,760,920,null],556,[970,1030,1140,1400,1760,null],986],["7000",[580,620,680,820,990,null],582,[1030,1100,1220,1530,1910,null],1029],["8000",[620,660,730,900,1080,null],611,[1090,1170,1320,1660,2080,null],1078],["9000",[660,710,800,980,1180,null],642,[1150,1240,1450,1840,2280,null],1128],["10000",[700,770,900,1100,null,null],676,[1230,1360,1640,2110,null,null],1182]],"1900":[["SL",[370,390,410,450,520,640],400,[670,710,730,800,960,1210],716],["1000",[390,410,440,480,570,690],417,[710,740,780,860,1060,1310],743],["2000",[420,440,470,510,620,750],435,[740,770,820,920,1150,1420],773],["3000",[440,460,490,550,670,810],456,[770,810,870,990,1250,1550],803],["4000",[460,490,530,600,730,880],477,[810,850,920,1080,1350,1670],838],["5000",[490,520,560,650,790,null],500,[850,900,990,1180,1470,null],874],["6000",[520,550,600,710,860,null],523,[900,950,1050,1280,1600,null],910],["7000",[550,590,640,780,930,null],549,[950,1010,1130,1400,1740,null],951],["8000",[580,620,690,840,1010,null],577,[1000,1080,1210,1520,1880,null],995],["9000",[620,670,760,920,1110,null],606,[1060,1150,1330,1680,2090,null],1040],["10000",[660,720,840,1030,null,null],638,[1140,1250,1500,1910,null,null],1094]],"1700":[["SL",[330,350,360,390,460,560],350,[580,600,630,680,810,1010],613],["1000",[350,360,390,420,500,600],367,[598,630,670,730,890,1100],633],["2000",[370,390,410,450,540,650],384,[630,660,700,780,970,1190],661],["3000",[390,410,440,480,590,710],401,[660,700,740,840,1050,1290],689],["4000",[410,430,460,530,640,770],420,[700,730,790,910,1140,1390],717],["5000",[430,460,490,580,700,null],439,[730,770,840,1000,1240,null],748],["6000",[460,490,530,630,760,null],461,[770,820,900,1090,1340,null],779],["7000",[480,520,560,680,820,null],483,[810,870,960,1180,1450,null],815],["8000",[520,550,610,740,890,null],507,[860,920,1030,1290,1570,null],853],["9000",[550,590,670,810,970,null],532,[910,980,1130,1410,1740,null],891],["10000",[590,640,740,910,null,null],560,[980,1070,1270,1600,null,null],935]]},"to_short":{"1999":[["SL",[350,370,390,420,500,610],375,[600,640,670,730,890,1120],649],["1000",[370,390,410,450,540,660],392,[640,670,710,790,980,1230],676],["2000",[390,410,440,490,590,720],411,[670,710,760,850,1080,1360],707],["3000",[410,440,470,530,650,790],430,[710,750,810,930,1180,1500],739],["4000",[440,460,500,580,710,860],453,[750,790,870,1020,1300,1640],776],["5000",[470,490,540,630,780,null],477,[790,840,930,1130,1440,null],812],["6000",[500,530,580,690,850,null],500,[840,900,1000,1240,1590,null],854],["7000",[530,560,620,760,930,null],526,[900,960,1080,1380,1750,null],899],["8000",[560,600,670,830,1010,null],556,[950,1030,1180,1520,1940,null],946],["9000",[600,650,740,920,1120,null],585,[1020,1110,1320,1710,2200,null],999],["10000",[650,710,840,1040,null,null],618,[1100,1230,1520,2010,null,null],1055]],"1900":[["SL",[330,350,370,400,470,570],354,[560,590,620,680,820,1030],603],["1000",[350,370,390,430,510,630],371,[590,620,660,730,900,1130],630],["2000",[370,390,420,460,560,680],388,[620,660,700,790,990,1240],657],["3000",[390,410,440,500,610,740],407,[660,690,750,860,1090,1360],686],["4000",[410,440,470,540,670,810],427,[700,740,800,940,1190,1490],718],["5000",[440,470,510,600,730,null],448,[740,780,860,1040,1310,null],755],["6000",[470,500,540,650,800,null],472,[780,840,930,1140,1440,null],793],["7000",[500,530,590,720,870,null],496,[830,890,1000,1260,1590,null],833],["8000",[530,570,640,780,950,null],524,[890,960,1090,1390,1750,null],877],["9000",[570,610,700,860,1050,null],551,[950,1030,1210,1550,1980,null],924],["10000",[610,670,790,980,null,null],583,[1020,1140,1380,1810,null,null],977]],"1700":[["SL",[290,310,320,350,410,500],311,[490,510,540,590,700,870],521],["1000",[310,320,340,380,450,550],326,[510,540,570,630,770,950],544],["2000",[330,350,370,410,490,600],342,[540,570,610,680,840,1040],567],["3000",[350,360,390,440,540,650],358,[570,600,650,730,920,1140],592],["4000",[370,390,420,480,590,710],376,[600,640,690,810,1010,1250],622],["5000",[390,410,450,520,640,null],396,[640,680,740,880,1100,null],651],["6000",[410,440,480,580,700,null],416,[680,720,800,970,1210,null],684],["7000",[440,470,520,630,770,null],437,[720,770,860,1070,1330,null],719],["8000",[470,500,560,690,840,null],461,[760,820,930,1170,1460,null],755],["9000",[500,540,620,760,930,null],487,[820,880,1030,1300,1630,null],797],["10000",[540,590,690,860,null,null],513,[880,970,1170,1500,null,null],839]]},"aeo_up":{"1999":[["SL",[1120,1120,1120,1110,1110,1100,1040,880],1114],["2000",[1120,1110,1110,1100,1090,1090,970,820],1103],["4000",[1110,1100,1090,1090,1080,1050,900,760],1092],["6000",[1090,1090,1080,1070,1070,990,840,null],1081],["8000",[1080,1070,1060,1050,1040,930,780,null],1069],["10000",[1060,1050,1040,1040,990,820,null,null],1052],["12000",[1040,1030,1020,1020,850,680,null,null],1033],["14000",[1020,1020,960,830,660,520,null,null],1021],["16000",[1010,940,820,680,540,null,null,null],1007],["18000",[890,800,700,560,410,null,null,null],895]],"1900":[["SL",[1210,1210,1200,1200,1200,1190,1130,960],1203],["2000",[1200,1200,1200,1190,1180,1180,1050,890],1193],["4000",[1200,1190,1180,1170,1170,1140,98,830],1181],["6000",[1180,1170,1170,1160,1150,1080,920,null],1169],["8000",[1170,1160,1150,1150,1130,1010,860,null],1158],["10000",[1150,1140,1130,1130,1080,900,null,null],1144],["12000",[1130,1120,1120,1110,930,750,null,null],1124],["14000",[1110,1110,1050,920,740,590,null,null],1113],["16000",[1100,1030,910,760,610,null,null,null],1102],["18000",[980,890,780,630,480,null,null,null],986]],"1700":[["SL",[1380,1380,1380,1380,1370,1370,1290,1100],1378],["2000",[1380,1380,1370,1360,1360,1350,1210,1030],1368],["4000",[1370,1360,1360,1350,1340,1320,1130,960],1357],["6000",[1360,1350,1340,1340,1330,1240,1060,null],1345],["8000",[1340,1340,1330,1320,1310,1170,1000,null],1334],["10000",[1330,1320,1310,1300,1250,1050,null,null],1320],["12000",[1310,1300,1290,1290,1080,890,null,null],1299],["14000",[1290,1290,1220,1070,870,710,null,null],1289],["16000",[1280,1200,1070,900,730,null,null,null],1278],["18000",[1140,1040,930,760,590,null,null,null],1151]]},"aeo_app":{"1999":[["SL",[1080,1070,1060,1050,1040,1030,980,820],1052],["2000",[1060,1050,1040,1030,1020,1010,890,750],1036],["4000",[1040,1030,1020,1010,1000,970,820,680],1020],["6000",[1020,1010,1000,980,970,900,750,null],997],["8000",[1000,980,970,950,940,830,690,null],973],["10000",[970,950,940,930,880,720,null,null],949],["12000",[940,920,910,900,730,570,null,null],923],["14000",[910,900,840,710,540,410,null,null],904],["16000",[890,810,700,560,410,null,null,null],883],["18000",[760,670,570,430,280,null,null,null],769]],"1900":[["SL",[1160,1150,1140,1130,1120,1110,1050,880],1129],["2000",[1140,1130,1120,1110,1100,1090,960,810],1112],["4000",[1120,1110,1100,1090,1070,1050,890,740],1096],["6000",[1100,1090,1070,1060,1050,970,820,null],1073],["8000",[1070,1060,1040,1030,1020,900,750,null],1049],["10000",[1040,1030,1010,1000,950,780,null,null],1024],["12000",[1010,990,980,970,800,620,null,null],998],["14000",[980,970,910,780,600,460,null,null],978],["16000",[960,880,760,610,460,null,null,null],957],["18000",[830,730,630,480,320,null,null,null],838]],"1700":[["SL",[1330,1320,1300,1290,1280,1270,1210,1020],1294],["2000",[1310,1290,1280,1270,1260,1250,1110,930],1277],["4000",[1280,1270,1260,1250,1240,1210,1030,860],1260],["6000",[1260,1250,1240,1220,1210,1130,950,null],1236],["8000",[1240,1220,1200,1190,1180,1050,870,null],1210],["10000",[1200,1190,1170,1160,1110,910,null,null],1184],["12000",[1170,1150,1140,1130,930,740,null,null],1156],["14000",[1140,1130,1060,910,710,550,null,null],1136],["16000",[1120,1030,900,730,560,null,null,null],1114],["18000",[980,870,750,580,410,null,null,null],983]]},"oei":{"1999":[["SL",[270,255,245,235,225,210,185,120],230],["2000",[245,235,220,210,200,190,140,80],212],["4000",[225,210,200,185,175,160,95,40],193],["6000",[200,185,175,160,150,120,55,null],170],["8000",[175,160,145,130,120,75,15,null],147],["10000",[145,130,115,100,80,10,null,null],123],["12000",[115,95,85,70,0,-70,null,null],97],["14000",[85,70,35,-30,-105,-160,null,null],75],["16000",[55,10,-50,-120,-180,null,null,null],50],["18000",[-25,-75,-135,-195,-255,null,null,null],-19]],"1900":[["SL",[305,295,285,270,260,250,225,155],269],["2000",[285,270,260,250,240,225,175,110],250],["4000",[260,250,235,225,210,195,130,70],231],["6000",[235,225,210,195,185,155,90,null],208],["8000",[210,195,180,165,155,110,45,null],184],["10000",[180,165,150,140,115,40,null,null],160],["12000",[150,135,120,110,30,-45,null,null],134],["14000",[120,105,70,0,-75,-135,null,null],111],["16000",[90,45,-20,-90,-155,null,null,null],86],["18000",[10,-45,-105,-170,-235,null,null,null],14]],"1700":[["SL",[390,375,365,355,345,330,300,220],350],["2000",[365,355,340,330,320,305,245,170],331],["4000",[340,330,315,305,290,275,200,125],311],["6000",[320,305,290,275,265,225,150,null],287],["8000",[290,275,260,245,230,180,105,null],263],["10000",[260,245,230,215,190,100,null,null],237],["12000",[225,210,195,185,95,10,null,null],210],["14000",[195,180,140,65,-25,-90,null,null],186],["16000",[165,115,45,-35,-110,null,null,null],161],["18000",[80,20,-45,-120,-195,null,null,null],83]]},"tfd":{"1999":[["SL",null,15,59,92,1115,5.7,0,0,0],["2000",600,11,52,93,1110,5.6,2,0.5,3],["4000",1219,7,45,95,1105,5.6,4,1,6],["6000",1829,3,38,96,1095,5.6,5,1.5,9],["8000",2438,-1,30,98,1090,5.5,7,2,12],["10000",3048,-5,23,99,1085,5.5,9,2.5,15],["12000",3658,-9,16,101,1080,5.5,11,3.1,19],["14000",4267,-13,9,102,1070,5.4,13,3.6,22],["16000",4877,-17,2,104,1065,5.4,15,4.2,26],["18000",5486,-21,-5,106,1050,5.3,17,4.7,30]],"1900":[["SL",null,15,59,90,1205,6.1,0,0,0],["2000",600,11,52,91,1200,6.1,2,0.5,3],["4000",1219,7,45,93,1195,6.1,3,0.9,5],["6000",1829,3,38,94,1185,6.0,5,1.4,8],["8000",2438,-1,30,96,1180,6.0,7,1.9,11],["10000",3048,-5,23,97,1175,6.0,9,2.4,14],["12000",3658,-9,16,99,1170,5.9,10,2.8,17],["14000",4267,-13,9,100,1160,5.9,12,3.3,20],["16000",4877,-17,2,102,1155,5.9,14,3.8,24],["18000",5486,-21,-5,104,1140,5.8,16,4.4,27]],"1700":[["SL",null,15,59,90,1380,7.0,0,0,0],["2000",600,11,52,91,1375,7.0,1,0.4,2],["4000",1219,7,45,93,1370,6.9,3,0.8,5],["6000",1829,3,38,94,1360,6.9,4,1.2,7],["8000",2438,-1,30,96,1355,6.9,6,1.6,9],["10000",3048,-5,23,97,1350,6.9,7,2.0,12],["12000",3658,-9,16,99,1345,6.8,9,2.5,15],["14000",4267,-13,9,100,1335,6.8,10,2.9,17],["16000",4877,-17,2,102,1330,6.8,12,3.3,20],["18000",5486,-21,-5,104,1315,6.7,14,3.8,24]]},"cruise":[[2000,92,16.6,164,92,16.6,166,92,16.6,168,92,16.7,170,89,16.3,169],[2000,75,13.2,152,75,13.2,153,75,13.2,155,75,13.2,157,75,13.2,158],[2000,60,10.3,138,60,10.3,139,60,10.3,141,60,10.3,142,60,10.3,144],[2000,35,6.5,102,35,6.5,103,35,6.5,103,35,6.5,104,35,6.5,104],[4000,92,16.6,168,92,16.6,169,92,16.6,171,92,16.7,173,90,16.5,173],[4000,75,13.2,154,75,13.2,156,75,13.2,158,75,13.2,159,75,13.2,161],[4000,60,10.3,140,60,10.3,142,60,10.3,143,60,10.3,145,60,10.3,146],[4000,35,6.5,103,35,6.5,104,35,6.5,104,35,6.5,104,35,6.5,105],[6000,92,16.6,171,92,16.6,173,92,16.6,175,92,16.7,176,90,16.4,176],[6000,75,13.2,157,75,13.2,159,75,13.2,161,75,13.2,163,75,13.2,164],[6000,60,10.3,143,60,10.3,144,60,10.3,146,60,10.3,147,60,10.3,149],[6000,35,6.5,104,35,6.5,104,35,6.5,105,35,6.5,105,35,6.5,105],[8000,92,16.6,174,92,16.6,176,92,16.6,178,92,16.7,180,92,16.8,181],[8000,75,13.2,160,75,13.2,162,75,13.2,164,75,13.2,166,75,13.2,167],[8000,60,10.3,145,60,10.3,147,60,10.3,149,60,10.3,150,60,10.3,151],[8000,40,7.3,117,40,7.3,118,40,7.3,118,40,7.3,119,40,7.3,120],[10000,92,16.6,177,92,16.6,179,92,16.6,181,92,16.7,183,90,16.4,183],[10000,75,13.2,163,75,13.2,165,75,13.2,167,75,13.2,169,75,13.2,170],[10000,60,10.3,148,60,10.3,150,60,10.3,151,60,10.3,153,60,10.3,154],[10000,45,8.1,128,45,8.1,129,45,8.1,130,45,8.1,131,45,8.1,131],[12000,92,16.6,181,92,16.6,183,92,16.6,185,92,16.8,187,90,16.2,184],[12000,75,13.2,166,75,13.2,168,75,13.2,170,75,13.2,172,75,13.2,173],[12000,60,10.3,151,60,10.3,152,60,10.3,154,60,10.3,155,60,10.3,157],[12000,45,8.1,129,45,8.1,130,45,8.1,131,45,8.1,132,45,8.1,133],[14000,92,16.7,184,92,16.7,186,92,16.8,188,85,15.4,184,80,14.5,182],[14000,75,13.2,169,75,13.2,171,75,13.2,173,75,13.2,175,75,13.2,177],[14000,60,10.3,153,60,10.3,155,60,10.3,156,60,10.3,158,60,10.3,159],[14000,45,8.1,131,45,8.1,132,50,8.8,142,50,8.8,143,50,8.8,144],[16000,92,16.8,188,92,16.8,190,90,16.5,189,85,15.5,186,80,14.5,183],[16000,75,13.2,173,75,13.2,175,75,13.2,176,75,13.2,178,75,13.2,180],[16000,60,10.3,156,60,10.3,157,60,10.3,159,60,10.3,161,60,10.3,162],[16000,50,8.7,142,50,8.7,143,50,8.7,144,50,8.7,145,50,8.7,146],[18000,85,15.4,185,85,15.5,188,85,15.5,189,80,14.5,186,80,14.0,184],[18000,75,13.2,176,75,13.2,178,75,13.2,180,75,13.2,182,75,13.5,183],[18000,60,10.3,159,60,10.3,160,60,10.3,162,60,10.3,163,60,10.3,165],[18000,50,8.7,144,50,8.7,145,50,8.7,146,50,8.7,147,50,8.7,148]],"ldg":{"1999":[["SL",[370,380,400,410,440,500],387,[620,640,660,680,730,820],647],["1000",[380,400,410,420,470,530],399,[640,660,680,700,770,860],662],["2000",[400,410,430,440,490,550],411,[660,680,700,720,810,900],680],["3000",[410,430,440,460,520,580],422,[680,700,720,750,840,940],697],["4000",[430,440,460,490,550,610],435,[700,720,750,790,890,990],715],["5000",[440,460,480,510,580,null],449,[730,750,770,830,930,null],734],["6000",[460,480,490,540,610,null],461,[750,770,800,870,980,null],753],["7000",[480,500,520,580,650,null],479,[780,810,830,930,1030,null],780],["8000",[510,530,550,630,700,null],507,[820,850,880,990,1110,null],818],["9000",[550,570,610,690,770,null],542,[870,900,950,1070,1200,null],862],["10000",[600,620,670,750,null,null],584,[930,960,1040,1160,null,null],913]],"1900":[["SL",[360,370,380,390,430,480],372,[600,620,630,650,700,780],620],["1000",[370,380,390,410,450,500],381,[620,630,650,670,740,820],635],["2000",[380,390,410,420,470,530],392,[630,650,670,690,770,860],652],["3000",[400,410,420,440,500,560],405,[650,670,690,720,810,910],668],["4000",[410,420,440,460,520,590],415,[670,700,720,760,850,950],685],["5000",[420,440,450,490,550,null],428,[700,720,740,800,900,null],704],["6000",[440,450,470,520,580,null],442,[720,740,770,840,940,null],722],["7000",[460,480,490,550,620,null],459,[750,780,800,890,1000,null],751],["8000",[490,510,530,600,670,null],488,[790,820,850,960,1070,null],788],["9000",[530,550,580,660,740,null],523,[840,870,920,1030,1160,null],832],["10000",[580,590,640,730,null,null],562,[900,930,1000,1120,null,null],884]],"1805":[["SL",[334,347,360,370,401,451],353,[573,590,607,625,672,753],598],["1000",[347,360,371,384,423,473],364,[590,608,626,644,705,790],613],["2000",[360,371,385,399,445,500],373,[608,627,645,663,741,827],629],["3000",[372,386,400,415,470,528],385,[628,646,665,691,777,866],645],["4000",[386,401,413,440,494,553],397,[647,667,687,726,816,909],661],["5000",[399,414,429,463,522,null],407,[668,689,709,764,856,null],679],["6000",[415,431,444,490,552,null],420,[690,710,732,803,898,null],696],["7000",[435,451,465,523,588,null],437,[719,741,764,852,952,null],721],["8000",[466,484,503,571,638,null],465,[760,783,814,917,1025,null],758],["9000",[506,522,556,626,703,null],500,[809,835,884,995,1109,null],802],["10000",[550,570,615,694,null,null],540,[868,894,964,1082,null,null],855]],"1700":[["SL",[320,340,350,360,390,430],335,[550,570,590,600,650,730],577],["1000",[340,350,360,370,410,460],346,[570,590,610,620,680,760],591],["2000",[350,360,370,380,430,480],356,[590,610,630,640,720,800],605],["3000",[360,370,380,400,450,500],367,[610,630,640,670,750,840],621],["4000",[370,380,400,420,480,530],376,[630,650,660,700,790,880],636],["5000",[390,400,410,450,500,null],388,[650,670,690,740,830,null],652],["6000",[400,410,430,470,530,null],401,[670,690,710,780,870,null],670],["7000",[420,440,450,500,560,null],417,[690,720,740,820,920,null],693],["8000",[450,460,490,550,610,null],445,[740,760,790,890,990,null],731],["9000",[490,510,540,610,680,null],481,[790,810,860,960,1070,null],775],["10000",[530,550,600,670,null,null],522,[850,870,940,1050,null,null],828]]},"ldg_abn":{"1999":[["SL",[510,530,550,560,610,680],532,[860,880,910,940,1010,1130],894],["1000",[530,550,570,580,640,720],548,[880,910,940,970,1060,1180],916],["2000",[550,570,580,610,680,760],565,[910,940,970,1000,1110,1240],938],["3000",[570,590,610,630,710,800],580,[940,970,1000,1040,1160,1300],963],["4000",[590,610,630,670,750,840],598,[970,1000,1030,1090,1220,1360],987],["5000",[610,630,650,700,790,null],614,[1000,1030,1060,1150,1290,null],1014],["6000",[630,650,680,740,830,null],634,[1030,1070,1100,1200,1350,null],1040],["7000",[660,680,710,790,890,null],659,[1080,1110,1150,1280,1430,null],1080],["8000",[700,730,760,860,960,null],698,[1140,1180,1220,1380,1540,null],1136],["9000",[760,780,830,940,1050,null],745,[1210,1250,1320,1490,1660,null],1200],["10000",[810,840,910,1030,null,null],799,[1300,1340,1440,1620,null,null],1276]],"1900":[["SL",[490,510,520,540,580,650],511,[820,840,870,890,960,1080],852],["1000",[510,520,540,560,610,690],524,[840,870,900,920,1010,1130],874],["2000",[520,540,560,580,650,730],540,[870,900,920,950,1060,1180],895],["3000",[540,560,580,610,680,760],554,[900,930,950,990,1110,1240],919],["4000",[560,580,600,640,720,800],572,[930,950,980,1040,1170,1300],942],["5000",[580,600,620,670,760,null],590,[960,990,1010,1090,1220,null],966],["6000",[600,630,650,710,800,null],606,[990,1020,1050,1150,1290,null],992],["7000",[630,660,680,760,850,null],633,[1030,1060,1090,1220,1360,null],1030],["8000",[680,700,730,830,920,null],672,[1090,1130,1170,1320,1470,null],1085],["9000",[730,750,800,900,1010,null],717,[1160,1200,1270,1430,1590,null],1150],["10000",[790,820,880,990,null,null],772,[1250,1290,1390,1560,null,null],1227]],"1805":[["SL",[462,477,494,511,551,621],485,[780,804,827,850,916,1025],816],["1000",[477,495,513,528,582,652],500,[804,828,852,877,961,1076],835],["2000",[495,514,530,548,613,688],516,[829,853,879,904,1010,1127],856],["3000",[514,531,550,572,647,723],529,[854,881,906,942,1059,1182],879],["4000",[532,552,569,605,681,763],546,[882,908,936,989,1112,1239],901],["5000",[552,571,591,638,720,null],560,[909,938,966,1041,1167,null],925],["6000",[572,593,612,675,757,null],578,[940,968,998,1093,1226,null],948],["7000",[599,622,642,720,810,null],602,[983,1013,1044,1165,1302,null],987],["8000",[643,667,694,786,880,null],641,[1044,1075,1118,1258,1406,null],1041],["9000",[693,719,762,862,963,null],688,[1116,1150,1217,1368,1527,null],1104],["10000",[755,783,844,953,null,null],742,[1201,1236,1332,1494,null,null],1183]],"1700":[["SL",[450,460,480,490,530,600],464,[750,780,800,820,880,990],783],["1000",[460,480,490,510,560,630],478,[780,800,820,850,930,1040],802],["2000",[480,490,510,530,590,660],492,[800,820,850,870,970,1080],821],["3000",[490,510,530,550,620,690],505,[820,850,870,910,1020,1140],843],["4000",[510,530,550,580,650,730],521,[850,880,900,950,1070,1190],864],["5000",[530,550,570,610,690,null],535,[880,900,930,1000,1120,null],887],["6000",[550,570,590,650,730,null],552,[910,930,960,1050,1180,null],910],["7000",[580,600,620,690,780,null],577,[950,980,1000,1120,1250,null],945],["8000",[620,640,670,760,850,null],614,[1010,1040,1080,1210,1360,null],1001],["9000",[670,700,740,830,930,null],662,[1080,1110,1170,1320,1470,null],1064],["10000",[730,760,820,920,null,null],717,[1160,1200,1290,1450,null,null],1144]]},"ga":{"1999":[["SL",[635,620,600,585,570,505,375,240],580],["2000",[605,585,570,550,515,425,280,155],552],["4000",[570,550,530,510,450,340,200,80],517],["6000",[530,505,485,455,380,250,120,null],480],["8000",[485,460,440,400,310,170,45,null],443],["10000",[440,415,380,310,190,40,null,null],405]],"1900":[["SL",[735,715,700,685,670,605,470,325],678],["2000",[700,685,665,650,620,525,375,240],652],["4000",[670,650,635,615,555,440,290,160],622],["6000",[635,610,590,560,485,345,210,null],585],["8000",[590,565,545,505,410,265,135,null],548],["10000",[545,520,485,415,290,135,null,null],509]],"1805":[["SL",[794,777,760,744,728,659,518,366],735],["2000",[761,744,726,710,675,578,420,276],708],["4000",[727,709,693,671,611,488,330,193],677],["6000",[693,670,647,614,536,390,244,null],640],["8000",[647,623,600,557,462,304,165,null],602],["10000",[599,574,539,465,333,169,null,null],562]],"1700":[["SL",[865,845,830,810,795,725,575,410],805],["2000",[830,810,795,775,740,640,470,315],777],["4000",[795,775,760,735,675,545,375,225],746],["6000",[760,735,710,680,595,440,285,null],707],["8000",[710,685,665,620,520,350,200,null],667],["10000",[660,635,600,520,380,205,null,null],626]]}};
+const IAS_CAL=[[75,null,null,73],[80,79,80,78],[85,85,85,82],[90,90,90,87],[95,96,95,92],[100,101,101,97],[105,106,106,101],[110,112,111,106],[115,117,116,111],[120,122,121,null],[125,128,126,null],[130,133,132,null],[135,138,137,null],[140,143,null,null],[150,154,null,null],[160,164,null,null],[170,174,null,null],[180,184,null,null],[190,194,null,null]];
+const FUELFLOW=[[30,2.9,11],[35,3.3,12.5],[40,3.6,14],[45,4.0,15.5],[50,4.4,16.5],[55,4.8,18],[60,5.2,19.5],[65,5.6,21],[70,6.0,22.5],[75,6.5,24.5],[80,7.0,26.5],[85,7.5,28.5],[90,8.0,30.5],[92,8.3,31.5],[100,9.3,35.5]];
+const STALL={1510:[[61,59,66,64,72,71,84,84],[58,57,63,62,69,68,81,81],[54,54,60,59,67,65,79,77]],
+  1700:[[64,62,68,67,75,74,88,88],[62,61,66,66,73,73,86,86],[59,58,64,62,71,69,86,82]],
+  1900:[[68,66,72,71,79,78,93,93],[65,64,70,69,77,76,90,91],[62,61,67,66,75,73,89,86]],
+  1999:[[72,70,76,76,84,84,99,100],[68,67,73,72,80,80,95,95],[64,62,69,67,76,74,91,88]]};
+const ALT_M={"SL":"–","1000":"305","2000":"610","3000":"914","4000":"1219","5000":"1524","6000":"1829","7000":"2134","8000":"2438","9000":"2743","10000":"3048","12000":"3658","14000":"4267","16000":"4877","18000":"5486"};
+const pf=Object.assign({stall:"1900",to:"normal",tow:"1900",aeo:"up",aeow:"1900",oeiw:"1900",tfdw:"1900",ldg:"ldg",ldgw:"1805",gaw:"1805"},store.get("pf",{}));
+function seg(key,opts){ return `<div class="seg"><div role="group">`+opts.map(([v,l])=>`<button data-pf="${key}:${v}" aria-pressed="${pf[key]===v}">${l}</button>`).join("")+`</div></div>`; }
+const W=(arr)=>arr.map(w=>[String(w),w+" kg"]);
+const cell=(x,cls="")=>x==null?`<td class="v hx"></td>`:`<td class="v ${cls}">${x}</td>`;
+const altCell=(a,rs)=>`<td class="plain alt" rowspan="${rs}"><b>${a}</b><br><span class="m">${ALT_M[a]||""}</span></td>`;
+const TO_T=["0 / 32","10 / 50","20 / 68","30 / 86","40 / 104","50 / 122"];
+const CL_T=["-20 / -4","-10 / 14","0 / 32","10 / 50","20 / 68","30 / 86","40 / 104","50 / 122"];
+function distTable(rows){
+  let h=`<div class="tblw"><table class="pt"><thead><tr><th class="plain">Press. alt<br>[ft] / [m]</th><th class="plain">Distance [m]</th>`+TO_T.map(t=>`<th class="plain">${t.replace(" / ","<br><span class=m>")}°</span></th>`).join("")+`<th class="plain">ISA</th></tr></thead><tbody>`;
+  for(const [a,g,gi,o,oi] of rows){
+    h+=`<tr>${altCell(a,2)}<td><b>Ground roll</b></td>${g.map(x=>cell(x)).join("")}${cell(gi,"isa")}</tr><tr><td><b>15 m / 50 ft</b></td>${o.map(x=>cell(x)).join("")}${cell(oi,"isa")}</tr>`;
+  }
+  return h+`</tbody></table></div><p>OAT in °C / °F. Hatched cells: no data in the AFM. For the distance in ft multiply by 3.28.</p>`;
 }
-function fitSwipe(k){ const sw=$("#swipe"); if(!sw) return; const sl=sw.children[k]; if(sl) sw.style.height=sl.scrollHeight+"px"; }
-function goPage(k){ const sw=$("#swipe"); if(!sw) return; sw.style.height=""; sw.scrollTo({left:k*sw.clientWidth,behavior:"smooth"}); window.scrollTo({top:0,behavior:"smooth"}); }
+function climbTable(rows,low){
+  let h=`<div class="tblw"><table class="pt"><thead><tr><th class="plain">Press. alt<br>[ft] / [m]</th>`+CL_T.map(t=>`<th class="plain">${t.replace(" / ","<br><span class=m>")}°</span></th>`).join("")+`<th class="plain">ISA</th></tr></thead><tbody>`;
+  for(const [a,v,isa] of rows){
+    h+=`<tr>${altCell(a,1)}${v.map(x=>x===98?`<td class="v">98 *</td>`:cell(x,low&&x<50?"lo":"")).join("")}${cell(isa,"isa"+(low&&isa<50?" lo":""))}</tr>`;
+  }
+  return h+`</tbody></table></div>`;
+}
+function perfHead(){ return limHead("Performance","DA 42 NG Airplane Flight Manual, Doc. 7.01.16-E, Rev. 5 (10-Jun-2021), Chapter 5","p-perf"); }
+function renderPerf(){
+  let h=perfHead();
+  h+=`<p>For temperatures, altitudes and weights between those provided, interpolate linearly. For weights below 1700 kg use the 1700 kg data. Above the highest temperature shown, use extreme caution.</p>`;
+  /* airspeed calibration */
+  h+=`<h2 id="s-ias">Airspeed calibration (5.3.1)</h2><div class="tblw"><table class="pt narrow"><thead><tr><th class="plain">KIAS</th><th class="plain">KCAS flaps UP</th><th class="plain">KCAS flaps APP</th><th class="plain">KCAS flaps LDG</th></tr></thead><tbody>`+
+    IAS_CAL.map(r=>`<tr><td class="v"><b>${r[0]}</b></td>${cell(r[1])}${cell(r[2])}${cell(r[3])}</tr>`).join("")+`</tbody></table></div><p>Landing gear position has no significant influence. Hatched: not applicable.</p>`;
+  /* fuel flow */
+  h+=`<h2 id="s-ff">Fuel flow per engine (5.3.2)</h2><div class="tblw"><table class="pt narrow"><thead><tr><th class="plain">Power [%]</th><th class="plain">US gal/h</th><th class="plain">l/h</th></tr></thead><tbody>`+
+    FUELFLOW.map(r=>`<tr><td class="v"><b>${r[0]}</b></td>${cell(r[1].toFixed(1))}${cell(r[2])}</tr>`).join("")+`</tbody></table></div><p class="r1">Values are for ONE engine. G1000 FUEL CALC endurance and range are for information only, not for flight planning.</p>`;
+  /* stall */
+  h+=`<h2 id="s-stallb">Stalling speeds vs bank angle (5.3.4)</h2><p>Most forward CG, power off. KIAS may not be accurate at stall.</p>`+seg("stall",W([1510,1700,1900,1999]));
+  h+=`<div class="tblw"><table class="pt"><thead><tr><th class="plain" rowspan="2">Gear</th><th class="plain" rowspan="2">Flaps</th>${["0°","30°","45°","60°"].map(b=>`<th class="plain" colspan="2">${b} bank</th>`).join("")}</tr><tr>${"<th class=plain>KIAS</th><th class=plain>KCAS</th>".repeat(4)}</tr></thead><tbody>`+
+    STALL[pf.stall].map((r,i)=>`<tr><td><b>${["UP","DOWN","DOWN"][i]}</b></td><td><b>${["UP","APP","LDG"][i]}</b></td>${r.map((x,j)=>cell(x,j%2?"":"c")).join("")}</tr>`).join("")+`</tbody></table></div>`;
+  /* crosswind */
+  h+=`<h2 id="s-xwind">Wind components (5.3.5)</h2><div class="tblw"><table class="pt narrow"><tbody><tr><td>Maximum demonstrated crosswind component</td><td class="v"><b>25 kt</b></td></tr></tbody></table></div>`;
+  /* take-off */
+  const toW=pf.to==="normal"?{1999:"Flaps UP · vR 76 · v50 83 KIAS",1900:"Flaps UP · vR 76 · v50 83 KIAS",1700:"Flaps UP · vR 76 · v50 83 KIAS"}:{1999:"Flaps APP · vR 74 · v50 79 KIAS",1900:"Flaps APP · vR 71 · v50 77 KIAS",1700:"Flaps APP · vR 71 · v50 77 KIAS"};
+  h+=`<h2 id="s-to">Take-off distance (5.3.6)</h2>`+seg("to",[["normal","Normal procedure"],["short","Short field"]])+seg("tow",W([1999,1900,1700]));
+  h+=`<p class="cond-line"><b>${pf.tow} kg · ${toW[pf.tow]}</b> · Power MAX · dry, paved, level runway</p>`+distTable(PERF[pf.to==="normal"?"to_normal":"to_short"][pf.tow]);
+  h+=`<div class="tblw"><table class="pt narrow"><thead><tr><th class="plain" colspan="2">Take-off corrections</th></tr></thead><tbody>
+    <tr><td>Headwind</td><td>−10 % per 14 kt</td></tr><tr><td>Tailwind</td><td>+10 % per 3 kt</td></tr>
+    <tr><td>Dry grass up to 5 cm</td><td>Ground roll +10 %</td></tr><tr><td>Dry grass 5 – 10 cm</td><td>Ground roll +15 %</td></tr>
+    <tr><td>Dry grass 25 cm</td><td>Ground roll +25 %</td></tr><tr><td>Grass longer than 25 cm</td><td class="r1">Take-off should not be attempted</td></tr>
+    <tr><td>Wet grass</td><td>Dry grass distance +10 %</td></tr><tr><td>Soft ground</td><td>Ground roll +45 % (in addition to grass)</td></tr>
+    <tr><td>Uphill slope</td><td>Ground roll +9 % per 1 % slope</td></tr></tbody></table></div>
+    <p class="r1"><b>Runway available must be at least equal to the take-off distance over 50 ft.</b></p>`;
+  /* AEO climb */
+  h+=`<h2 id="s-aeo">Climb – all engines operating (5.3.7)</h2><p>Rate of climb [ft/min] · Power 92 % · gear retracted · vY. Gradient [%] = ROC [fpm] ÷ TAS [KTAS] × 0.98.</p>`+seg("aeo",[["up","Flaps UP"],["app","Flaps APP"]])+seg("aeow",W([1999,1900,1700]));
+  h+=`<p class="cond-line"><b>${pf.aeow} kg · ${pf.aeo==="up"?(pf.aeow==="1999"?"vY 92 KIAS":"vY 90 KIAS"):"vY 85 KIAS"}</b></p>`+climbTable(PERF[pf.aeo==="up"?"aeo_up":"aeo_app"][pf.aeow]);
+  if(pf.aeo==="up"&&pf.aeow==="1900") h+=`<p>* Printed as 98 in the AFM (4000 ft, 40 °C). Probably 980: check your AFM.</p>`;
+  h+=`<p>100 % power, MSL, ISA: 1337 ft/min flaps UP, 1267 ft/min flaps APP at 1900 kg · 1243 ft/min flaps UP, 1183 ft/min flaps APP at 1999 kg (MÄM 42-678).</p>`;
+  /* OEI */
+  h+=`<h2 id="s-oei">Climb – one engine inoperative (5.3.8)</h2><p>Rate of climb [ft/min] · live engine 92 % · dead engine feathered · flaps UP · gear UP · vYSE 85 KIAS · one ball out, max 5° bank. Left engine is critical.</p>`+seg("oeiw",W([1999,1900,1700]))+climbTable(PERF.oei[pf.oeiw],true)+`<p class="r1">Shaded cells: rate of climb below 50 ft/min.</p>`;
+  /* TFD */
+  h+=`<h2 id="s-tfd">Time, fuel and distance to climb (5.3.9)</h2><p>Power 92 % · flaps UP · gear UP · vY · zero wind. Fuel for start, taxi and take-off not included. Add 10 % to time, fuel and distance for each 10 °C above the OAT shown. Subtract the airfield values from the cruise-altitude values.</p>`+seg("tfdw",W([1999,1900,1700]));
+  h+=`<div class="tblw"><table class="pt"><thead><tr><th class="plain">Press. alt<br>[ft] / [m]</th><th class="plain">OAT<br>°C / °F</th><th class="plain">TAS<br>[kt]</th><th class="plain">RoC<br>[ft/min]</th><th class="plain">RoC<br>[m/s]</th><th class="plain">Time<br>[min]</th><th class="plain">Fuel<br>[US gal]</th><th class="plain">Dist.<br>[NM]</th></tr></thead><tbody>`+
+    PERF.tfd[pf.tfdw].map(r=>`<tr><td class="plain alt"><b>${r[0]}</b><br><span class="m">${r[1]==null?"–":r[1]}</span></td>${cell(r[2]+" / "+r[3])}${cell(r[4])}${cell(r[5])}${cell(r[6])}${cell(r[7],"c")}${cell(r[8],"c")}${cell(r[9],"c")}</tr>`).join("")+`</tbody></table></div>`;
+  /* cruise */
+  h+=`<h2 id="s-cruise">Cruise performance (5.3.10)</h2><p>Flaps UP · gear UP · 1999 kg. FF is the total for both engines.</p><div class="tblw"><table class="pt wide"><thead><tr><th class="plain" rowspan="2">Press. alt<br>[ft] / [m]</th>`+
+    ["ISA−10","ISA","ISA+10","ISA+20","ISA+30"].map(t=>`<th class="plain" colspan="3">${t}</th>`).join("")+`</tr><tr>`+`<th class="plain">Pwr<br>%</th><th class="plain">FF<br>gal/h</th><th class="plain">TAS<br>kt</th>`.repeat(5)+`</tr></thead><tbody>`;
+  for(let i=0;i<PERF.cruise.length;i++){
+    const r=PERF.cruise[i]; const first=i%4===0;
+    h+=`<tr${first?' class="grpstart"':""}>${first?altCell(String(r[0]),4):""}`+[0,1,2,3,4].map(k=>`<td class="v"><b>${r[1+k*3]}</b></td><td class="v">${r[2+k*3].toFixed(1)}</td><td class="v c">${r[3+k*3]}</td>`).join("")+`</tr>`;
+  }
+  h+=`</tbody></table></div>`;
+  /* landing */
+  const ldgV=pf.ldg==="ldg"?{1999:86,1900:84,1805:84,1700:84}:{1999:92,1900:86,1805:86,1700:86};
+  h+=`<h2 id="s-ldg">Landing distance (5.3.11)</h2>`+seg("ldg",[["ldg","Flaps LDG"],["abn","Flaps APP or UP (abnormal)"]])+seg("ldgw",W([1999,1900,1805,1700]));
+  h+=`<p class="cond-line"><b>${pf.ldgw} kg · vREF ${ldgV[pf.ldgw]} KIAS</b> · Power IDLE · dry, paved, level runway</p>`+distTable(PERF[pf.ldg==="ldg"?"ldg":"ldg_abn"][pf.ldgw]);
+  h+=`<div class="tblw"><table class="pt narrow"><thead><tr><th class="plain" colspan="2">Landing corrections</th></tr></thead><tbody>
+    <tr><td>Headwind</td><td>−10 % per 14 kt</td></tr><tr><td>Tailwind</td><td>+10 % per 3 kt</td></tr><tr><td>Paved runway, wet</td><td>+15 %</td></tr>
+    <tr><td>Dry grass up to 5 cm</td><td>Ground roll +10 %</td></tr><tr><td>Dry grass 5 – 10 cm</td><td>Ground roll +15 %</td></tr>
+    <tr><td>Dry grass longer than 10 cm</td><td>Ground roll at least +25 %</td></tr><tr><td>Wet grass or soft runway</td><td>Ground roll +10 %</td></tr>
+    <tr><td>Downhill slope</td><td>Ground roll +9 % per 1 % slope</td></tr></tbody></table></div>
+    <p class="r1"><b>Runway available must be at least equal to the landing distance over 50 ft.</b></p>`;
+  /* go-around */
+  h+=`<h2 id="s-ga">Go-around climb (5.3.12)</h2><p>Rate of climb [ft/min] · power MAX · flaps LDG · gear extended · vREF 86 KIAS above 1900 kg, 84 KIAS up to 1900 kg. Angle of climb at MSL ISA: 4.7° at 1900 kg, 5.1° at 1805 kg, 3.9° at 1999 kg.</p>`+seg("gaw",W([1999,1900,1805,1700]))+climbTable(PERF.ga[pf.gaw]);
+  h+=`<p class="src">Always check against the AFM revision and supplements applicable to your aircraft.</p>`+footNote+`</article>`;
+  return h;
+}
+
+/* ---------- LIMITS: jump to a section, highlight the section in view ---------- */
+function goSec(id){
+  if(st.open!=="lim"){ open("lim"); }
+  st.sec=id; markSec();
+  requestAnimationFrame(()=>{ const el=document.getElementById(id); if(!el) return;
+    const top=el.getBoundingClientRect().top+scrollY-$("#hdr").offsetHeight-12; window.scrollTo({top,behavior:"smooth"}); });
+}
+function markSec(){ document.querySelectorAll("#idx [data-sec]").forEach(b=>b.setAttribute("aria-current",String(b.dataset.sec===st.sec))); }
+window.addEventListener("scroll",()=>{
+  if(st.open!=="lim") return; const lim=$("#hdr").offsetHeight+40; let cur=LIMSEC[0].items[0][0];
+  for(const P of LIMSEC) for(const it of P.items){ const el=document.getElementById(it[0]); if(el&&el.getBoundingClientRect().top<=lim) cur=it[0]; }
+  if(cur!==st.sec){ st.sec=cur; markSec(); }
+},{passive:true});
 
 /* ---------- NAVIGATION ---------- */
 function open(id){
-  const k=LIMPAGES.findIndex(x=>x.id===id); if(k>=0&&$("#swipe")&&main.classList.contains("reading")){ goPage(k); return; }
   st.open=id; st.undo=null; main.classList.add("reading"); $("#back").hidden=false; revealGroup(id);
   if(byId[id]){ if(!byId[id].x){ st.tab=byId[id].s; store.set("tab",st.tab); } } else { st.tab="L"; }
   renderIndex(); renderView(); window.scrollTo(0,0); wake();
@@ -1296,9 +1411,10 @@ document.addEventListener("click",e=>{
   if(t.dataset.t){ st.tab=t.dataset.t; st.q=""; $("#q").value=""; store.set("tab",st.tab); renderIndex(); if(window.innerWidth<900&&st.open) closeView(); return; }
   if(t.dataset.g){ toggleGroup(t.dataset.g); return; }
   if(t.dataset.id){ open(t.dataset.id); return; }
-  if(t.dataset.go){ open(t.dataset.go); return; }
-  if(t.dataset.lim){ st.lim=t.dataset.lim; store.set("lim",st.lim); st.open="lim"; renderView(); return; }
-  if(t.dataset.pg!=null){ goPage(+t.dataset.pg); return; }
+  if(t.dataset.go){ t.dataset.go.startsWith("s-")?goSec(t.dataset.go):open(t.dataset.go); return; }
+  if(t.dataset.lim){ st.lim=t.dataset.lim; store.set("lim",st.lim); const y=scrollY; renderView(); window.scrollTo(0,y); return; }
+  if(t.dataset.sec){ goSec(t.dataset.sec); return; }
+  if(t.dataset.pf){ const [k,v]=t.dataset.pf.split(":"); pf[k]=v; store.set("pf",pf); const y=scrollY; renderView(); window.scrollTo(0,y); return; }
   if(t.dataset.i!=null){ toggle(+t.dataset.i); return; }
   if(t.id==="next"){ const a=activeIdx(byId[st.open]); if(a>=0) toggle(a); return; }
   if(t.id==="reset"){ doReset(); return; }
@@ -1319,7 +1435,7 @@ let wl=null; async function wake(){ try{ if("wakeLock" in navigator && !wl){ wl=
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&st.open) wake(); });
 
 function hh(){ document.documentElement.style.setProperty("--hh",$("#hdr").offsetHeight+"px"); }
-window.addEventListener("resize",()=>{ hh(); const sw=$("#swipe"); if(sw){ const k=LIMPAGES.findIndex(x=>x.id===st.open); sw.scrollLeft=k*sw.clientWidth; fitSwipe(k);} }); window.addEventListener("orientationchange",()=>setTimeout(hh,300));
+window.addEventListener("resize",hh); window.addEventListener("orientationchange",()=>setTimeout(hh,300));
 try{ new ResizeObserver(hh).observe($("#hdr")); }catch(e){}
 
 applyTheme(); renderIndex(); renderView(); hh();
